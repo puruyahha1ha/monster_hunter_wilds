@@ -1,5 +1,9 @@
-<x-layouts.app.header :title="$title ?? null">
-    <flux:main>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        @include('partials.head')
+    </head>
+    <body class="min-h-screen bg-gray-100 dark:bg-gray-900">
         {{ $slot }}
-    </flux:main>
-</x-layouts.app.header>
+    </body>
+</html>

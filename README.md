@@ -1,3 +1,4 @@
+```
 app/Livewire/
 ├── Home/
 │   ├── Page.php                      # ページ全体をまとめるコンポーネント
@@ -20,3 +21,4 @@ app/Livewire/
     └── Auth/
         ├── LoginForm.php             # ログインフォーム
         └── RegisterForm.php          # 登録フォーム
+```

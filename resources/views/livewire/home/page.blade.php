@@ -2,13 +2,14 @@
     {{-- ヒーローセクション --}}
     <livewire:home.hero-section />
 
-    {{-- クイックリンクセクション --}}
-    <livewire:home.quick-links-section />
+
 
     <div class="mx-auto max-w-7xl px-2 py-8 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-12">
-            <!-- メインコンテンツ -->
-            <div class="md:col-span-8">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-6">
+            <div class="md:col-span-8 space-y-8">
+                {{-- クイックリンクセクション --}}
+                <livewire:home.quick-links-section />
+
                 {{-- 新着装備セクション - 遅延ロード適用 --}}
                 <livewire:home.latest-builds-section :lazy="true" />
 

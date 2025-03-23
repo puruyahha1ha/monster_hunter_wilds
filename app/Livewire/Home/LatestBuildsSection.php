@@ -18,7 +18,7 @@ class LatestBuildsSection extends Component
     /**
      * 一度に表示するアイテム数
      */
-    public $perPage = 6;
+    public $perPage = 3;
 
     /**
      * ロード中状態
@@ -62,7 +62,20 @@ class LatestBuildsSection extends Component
 
         // ベストプラクティス: パフォーマンス向上のためのキャッシュ
         return cache()->remember($cacheKey, now()->addMinutes(30), function () {
-            return Build::with(['user', 'weapon', 'tags'])
+            return Build::with([
+                'user',
+                'tags',
+                'likes',
+                'detail.weapon',
+                'detail.headArmor',
+                'detail.chestArmor',
+                'detail.armArmor',
+                'detail.waistArmor',
+                'detail.legArmor',
+                'detail.mantle1',
+                'detail.mantle2',
+                'skills'
+            ])
                 ->latest()
                 ->take($this->perPage)
                 ->get();
@@ -99,16 +112,38 @@ class LatestBuildsSection extends Component
 
             $builds[] = (object)[
                 'id' => $i,
-                'name' => "極・{$weaponType}マスターの装備",
-                'image_path' => 'images/build-placeholder.jpg',
-                'likes_count' => $likes,
+                'title' => "極・{$weaponType}マスターの装備",
+                'description' => 'この装備は、モンスターを狩るための最強の装備です。',
+                'purpose' => 'モンスター狩り',
+                'target_monster' => 'ナルガクルガ',
                 'created_at' => now()->subDays(rand(1, 10)),
-                'weapon_type' => $weaponType,
-                'weapon_icon' => 'images/weapon-placeholder.png',
-                'tags' => ['高火力', '生存特化'],
+                'tags' => [
+                    (object)['name' => '上位', 'id' => '1'],
+                    (object)['name' => '下位', 'id' => '2'],
+                    (object)['name' => 'ソロ', 'id' => '3'],
+                    (object)['name' => 'マルチ', 'id' => '4'],
+                ],
                 'user' => (object)[
                     'name' => "ハンター{$i}",
-                    'profile_image' => 'images/default-avatar.png'
+                    'avatar' => ''
+                ],
+                'likes' => (object)[
+                    'count' => $likes,
+                ],
+                'detail' => (object)[
+                    'weapon' => (object)['name' => $weaponType],
+                    'head_armor' => (object)['name' => 'オーグヘルム'],
+                    'chest_armor' => (object)['name' => 'オーグメイル'],
+                    'arm_armor' => (object)['name' => 'オーグアーム'],
+                    'waist_armor' => (object)['name' => 'オーグコイル'],
+                    'leg_armor' => (object)['name' => 'オーググリーヴ'],
+                    'mantle1' => (object)['name' => '攻撃のマント'],
+                    'mantle2' => (object)['name' => '耐震のマント'],
+                ],
+                'skills' => [
+                    (object)['skill_id' => '1', 'level' => 7, 'skill' => (object)['name' => '攻撃力UP', 'description' => '攻撃力が上昇する']],
+                    (object)['skill_id' => '2', 'level' => 5, 'skill' => (object)['name' => '会心率UP', 'description' => '会心率が上昇する']],
+                    (object)['skill_id' => '3', 'level' => 3, 'skill' => (object)['name' => 'スタミナUP', 'description' => 'スタミナが上昇する']],
                 ]
             ];
         }

@@ -7,9 +7,10 @@
     </div>
     <div class="p-4 grid grid-cols-2 gap-3">
         @foreach ($quickLinks as $quickLink)
-            <a href="#"
-                class="flex items-center p-3 rounded-lg border border-gray-700 hover:bg-gray-700 transition">
-                <span class="text-sm font-medium text-white">{{ $quickLink['ラベル'] }}</span>
+            <a href="{{ $quickLink['url'] }}"
+                class="flex items-center p-3 rounded-lg border border-gray-700 hover:bg-gray-700 transition"
+                wire:navigate>
+                <span class="text-sm font-medium text-white">{{ $quickLink['label'] }}</span>
             </a>
         @endforeach
     </div>

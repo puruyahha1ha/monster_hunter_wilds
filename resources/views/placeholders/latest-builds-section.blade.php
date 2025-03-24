@@ -8,7 +8,7 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-2 lg:grid-cols-3">
         @for ($i = 0; $i < 3; $i++)
             <div class="flex flex-col overflow-hidden rounded-lg border shadow-sm border-gray-700 bg-gray-900 p-4">
                 {{-- タイトル部分のスケルトン --}}

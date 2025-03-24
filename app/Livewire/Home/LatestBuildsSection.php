@@ -16,9 +16,16 @@ class LatestBuildsSection extends Component
     use WithPagination;
 
     /**
+     * 画面サイズに応じた表示件数
+     */
+    public $defaultCount = 3;
+    public $smCount = 4;
+    public $lgCount = 6;
+
+    /**
      * 一度に表示するアイテム数
      */
-    public $perPage = 3;
+    public $perPage;
 
     /**
      * ロード中状態
@@ -31,7 +38,22 @@ class LatestBuildsSection extends Component
      */
     public function mount()
     {
-        // 非同期ロードの初期化コードがあれば記述
+        // 初期表示件数の設定
+        $this->perPage = $this->defaultCount;
+    }
+
+    /**
+     * 画面サイズ変更時のイベントハンドラ
+     */
+    public function updatedScreenSize($size)
+    {
+        if ($size == 'sm' || $size == 'md') {
+            $this->perPage = max($this->perPage, $this->smCount);
+        } else if ($size == 'lg' || $size == 'xl' || $size == '2xl') {
+            $this->perPage = max($this->perPage, $this->lgCount);
+        } else {
+            $this->perPage = max($this->perPage, $this->defaultCount);
+        }
     }
 
     /**

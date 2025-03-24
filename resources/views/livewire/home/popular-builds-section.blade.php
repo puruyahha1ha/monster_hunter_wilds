@@ -12,28 +12,33 @@
                     class="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-red-600 text-white text-sm font-bold">
                     {{ $index + 1 }}
                 </div>
-                <div class="ml-4 flex-1">
-                    <a href="/builds/{{ $index + 1 }}"
-                        class="text-sm font-medium text-white hover:text-red-400">
+                <div class="ml-4 flex-1 min-w-0"> <!-- min-w-0を追加 -->
+                    <a href="/builds/{{ $index + 1 }}" class="text-sm font-medium text-white hover:text-red-400">
                         <h4>{{ $build }}</h4>
                     </a>
                     {{-- タグ --}}
-                    <div class="mt-2 overflow-x-auto pb-1">
-                        <div class="flex gap-1 whitespace-nowrap">
+                    <div class="mt-2 relative"> <!-- overflow-x-autoを削除し、relativeを追加 -->
+                        <div
+                            class="flex gap-1 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                            <!-- スクロールバー表示用のクラスを追加 -->
                             @foreach (['大剣', '火力', '装備'] as $tag)
                                 <a href="#"
-                                    class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    class="flex-shrink-0 text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    <!-- flex-shrink-0を追加 -->
                                     {{ $tag }}
                                 </a>
                             @endforeach
                         </div>
                     </div>
                     {{-- スキル --}}
-                    <div class="mt-2 overflow-x-auto pb-1">
-                        <div class="flex gap-1 whitespace-nowrap">
+                    <div class="mt-2 relative"> <!-- overflow-x-autoを削除し、relativeを追加 -->
+                        <div
+                            class="flex gap-1 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                            <!-- スクロールバー表示用のクラスを追加 -->
                             @foreach (['攻撃力', '会心率', '火属性攻撃強化'] as $skill)
                                 <a href="#"
-                                    class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    class="flex-shrink-0 text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    <!-- flex-shrink-0を追加 -->
                                     {{ $skill }} Lv{{ rand(1, 3) }}
                                 </a>
                             @endforeach
@@ -54,8 +59,7 @@
         @endforeach
     </div>
     <div class="border-t border-gray-700 p-4">
-        <a href="#"
-            class="text-sm font-medium text-red-400 hover:text-red-300">
+        <a href="#" class="text-sm font-medium text-red-400 hover:text-red-300">
             もっと見る →
         </a>
     </div>

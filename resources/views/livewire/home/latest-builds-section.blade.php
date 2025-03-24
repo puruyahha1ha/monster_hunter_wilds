@@ -8,14 +8,15 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-2 lg:grid-cols-3">
         @foreach ($latestBuilds as $build)
             <div
                 class="flex flex-col overflow-hidden rounded-lg border shadow-sm border-gray-700 bg-gray-900 transition hover:shadow-md">
                 <div class="flex flex-1 flex-col justify-between p-4">
                     <div>
                         <div class="flex items-center mb-2">
-                            <a class="font-semibold text-white hover:text-red-400" href="/builds/{{ $build->id }}">
+                            <a class="font-semibold text-white hover:text-red-400 truncate"
+                                href="/builds/{{ $build->id }}">
                                 {{ $build->title }}
                             </a>
                         </div>
@@ -24,7 +25,7 @@
                             <div class="mt-2 overflow-x-auto pb-1">
                                 <div class="flex gap-1 whitespace-nowrap w-max">
                                     @foreach ($build->tags as $tag)
-                                        <a class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700"
+                                        <a class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 truncate"
                                             href="/builds?tag={{ $tag->id }}">
                                             {{ $tag->name }}
                                         </a>
@@ -38,7 +39,7 @@
                                 <div class="flex gap-1 whitespace-nowrap w-max">
                                     @foreach ($build->skills as $skill)
                                         <a href="/skills/{{ $skill->skill->name }}"
-                                            class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                            class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 truncate">
                                             {{ $skill->skill->name }} Lv{{ $skill->level }}
                                         </a>
                                     @endforeach
@@ -50,7 +51,7 @@
                             <div class="mt-2 grid grid-cols-2 gap-1">
                                 @foreach ($build->detail as $detail)
                                     <a href="/details/{{ $detail->name }}"
-                                        class="text-sm px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded">
+                                        class="text-sm px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 truncate">
                                         {{ $detail->name }}
                                     </a>
                                 @endforeach

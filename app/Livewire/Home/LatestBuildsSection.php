@@ -82,6 +82,11 @@ class LatestBuildsSection extends Component
         });
     }
 
+    public function placeholder()
+    {
+        return view('placeholders.latest-builds-section');
+    }
+
     /**
      * レンダリング
      */
@@ -89,7 +94,7 @@ class LatestBuildsSection extends Component
     {
         // サンプルデータを使用（本番環境ではDBから取得）
         $latestBuilds = $this->getSampleBuilds($this->perPage);
-
+        sleep(2); // 2秒待機
         // $latestBuilds = $this->getLatestBuilds();
 
         return view('livewire.home.latest-builds-section', [
@@ -144,6 +149,9 @@ class LatestBuildsSection extends Component
                     (object)['skill_id' => '1', 'level' => 7, 'skill' => (object)['name' => '攻撃力UP', 'description' => '攻撃力が上昇する']],
                     (object)['skill_id' => '2', 'level' => 5, 'skill' => (object)['name' => '会心率UP', 'description' => '会心率が上昇する']],
                     (object)['skill_id' => '3', 'level' => 3, 'skill' => (object)['name' => 'スタミナUP', 'description' => 'スタミナが上昇する']],
+                    (object)['skill_id' => '4', 'level' => 3, 'skill' => (object)['name' => '回避性能UP', 'description' => '回避性能が上昇する']],
+                    (object)['skill_id' => '5', 'level' => 3, 'skill' => (object)['name' => '見切りUP', 'description' => '見切りが上昇する']],
+                    (object)['skill_id' => '6', 'level' => 3, 'skill' => (object)['name' => '火耐性', 'description' => '火属性ダメージを軽減する']],
                 ]
             ];
         }

@@ -15,21 +15,21 @@
                     </div>
 
                     {{-- PC用メインメニュー --}}
-                    <nav class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <nav class="hidden sm:ml-6 sm:flex sm:space-x-4 lg:space-x-8">
                         <a href=""
-                            class="inline-flex items-center border-b-2 border-red-500 px-1 pt-1 text-sm font-medium text-white"
+                            class="inline-flex items-center border-b-2 border-red-500 px-1 pt-1 text-sm font-medium text-white whitespace-nowrap"
                             wire:navigate>ホーム</a>
                         <a href=""
-                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100"
+                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100 whitespace-nowrap"
                             wire:navigate>武器</a>
                         <a href=""
-                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100"
+                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100 whitespace-nowrap"
                             wire:navigate>防具</a>
                         <a href=""
-                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100"
+                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100 whitespace-nowrap"
                             wire:navigate>モンスター</a>
                         <a href=""
-                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100"
+                            class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-gray-100 whitespace-nowrap"
                             wire:navigate>コミュニティ</a>
                     </nav>
                 </div>
@@ -40,12 +40,6 @@
                             <a href="#"
                                 class="relative inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
                                 マイページ
-                            </a>
-                        </div>
-                        <div class="sm:ml-3 sm:flex sm:items-center">
-                            <a href="#"
-                                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:text-white">
-                                ログアウト
                             </a>
                         </div>
                     @else

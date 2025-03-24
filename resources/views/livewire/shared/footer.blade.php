@@ -2,8 +2,8 @@
     <footer class="bg-gray-900 border-t border-gray-700">
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div class="text-center text-sm text-white">
-                <p>© 2025 モンスターハンターワイルド 総合情報サイト - ファンサイト</p>
-                <p class="mt-2">このサイトはCAPCOMの正式なサイトではありません。ゲーム内の画像や名称はCAPCOMの商標です。</p>
+                <p>© 2025 モンスターハンターワイルド 総合情報サイト</p>
+                <p class="mt-2">このサイトはCAPCOMの正式なサイトではありません。<br>ゲーム内の画像や名称はCAPCOMの商標です。</p>
             </div>
         </div>
     </footer>

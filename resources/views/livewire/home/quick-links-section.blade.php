@@ -1,4 +1,4 @@
-<div class="border border-gray-700 bg-gray-900 shadow-sm overflow-hidden">
+<div class="border border-gray-700 bg-gray-900 shadow-sm overflow-hidden mb-8 rounded-lg">
     <div class="border-b border-gray-700 bg-gray-900 px-4 py-3">
         <h3 class="font-semibold text-white flex items-center">
             <flux:icon.link class="h-5 w-5 mr-2" />

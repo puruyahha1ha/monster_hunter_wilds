@@ -15,39 +15,44 @@
                 <div class="flex flex-1 flex-col justify-between p-4">
                     <div>
                         <div class="flex items-center mb-2">
-                            <a class="font-semibold text-white hover:text-red-400"
-                                href="/builds/{{ $build->id }}">
+                            <a class="font-semibold text-white hover:text-red-400" href="/builds/{{ $build->id }}">
                                 {{ $build->title }}
                             </a>
                         </div>
 
                         @if (count($build->tags) > 0)
-                            <div class="mt-2 flex flex-wrap gap-1">
-                                @foreach ($build->tags as $tag)
-                                    <a class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700"
-                                        href="/builds?tag={{ $tag->id }}">
-                                        {{ $tag->name }}
-                                    </a>
-                                @endforeach
+                            <div class="mt-2 overflow-x-auto pb-1">
+                                <div class="flex gap-1 whitespace-nowrap w-max">
+                                    @foreach ($build->tags as $tag)
+                                        <a class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700"
+                                            href="/builds?tag={{ $tag->id }}">
+                                            {{ $tag->name }}
+                                        </a>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
 
                         @if (count($build->skills) > 0)
-                            <div class="mt-2 flex flex-wrap gap-1">
-                                @foreach ($build->skills as $skill)
-                                    <span class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded">
-                                        {{ $skill->skill->name }} Lv{{ $skill->level }}
-                                    </span>
-                                @endforeach
+                            <div class="mt-2 overflow-x-auto pb-1">
+                                <div class="flex gap-1 whitespace-nowrap w-max">
+                                    @foreach ($build->skills as $skill)
+                                        <a href="/skills/{{ $skill->skill->name }}"
+                                            class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                            {{ $skill->skill->name }} Lv{{ $skill->level }}
+                                        </a>
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
 
                         @if ($build->detail)
-                            <div class="mt-2 flex flex-wrap gap-1">
+                            <div class="mt-2 grid grid-cols-2 gap-1">
                                 @foreach ($build->detail as $detail)
-                                    <span>
+                                    <a href="/details/{{ $detail->name }}"
+                                        class="text-sm px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded">
                                         {{ $detail->name }}
-                                    </span>
+                                    </a>
                                 @endforeach
                             </div>
                         @endif

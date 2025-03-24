@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Home\Page as HomePage;
+use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,7 +22,7 @@ Route::middleware([
     'auth',
     ValidateSessionWithWorkOS::class,
 ])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', HomePage::class)->name('dashboard');
 });
 
 require __DIR__ . '/settings.php';

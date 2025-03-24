@@ -38,7 +38,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
 
     {{-- CSS --}}
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- Livewire Styles --}}
     @livewireStyles
@@ -68,9 +68,6 @@
 
     {{-- Livewire Scripts --}}
     @livewireScripts
-
-    {{-- Alpine.js (Livewireのdefault-webpackエントリーポイントに含まれている) --}}
-    @vite('resources/js/app.js')
 
     {{-- 追加のスクリプト --}}
     @stack('scripts')

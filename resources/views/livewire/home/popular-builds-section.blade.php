@@ -1,47 +1,62 @@
-<div>
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold tracking-tight text-white">
+<div class="mb-8 rounded-lg border border-gray-700 bg-gray-900 shadow-sm overflow-hidden">
+    <div class="border-b border-gray-700 bg-gray-900 px-4 py-3">
+        <h3 class="font-semibold text-white flex items-center">
+            <flux:icon.arrow-trending-up class="h-5 w-5 mr-2 text-red-600" />
             人気の装備構成
-        </h2>
-        <a href="#" class="text-red-400 hover:text-red-300 text-sm font-medium">
-            すべて見る →
-        </a>
+        </h3>
     </div>
-
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        @foreach(range(0, 2) as $i)
-            <div
-                class="flex flex-col overflow-hidden rounded-lg border shadow-sm border-gray-700 bg-gray-900 transition hover:shadow-md">
-                <div class="flex flex-1 flex-col justify-between p-4">
-                    <div>
-                        <h3 class="font-semibold text-white">
-                            {{ ['火属性特化太刀装備', '高耐久ハンマー装備', '会心特化双剣ビルド'][$i] }}
-                        </h3>
-                        <p class="mt-2 text-sm text-gray-300 line-clamp-2">
-                            {{ ['火力と生存性能を両立した汎用的な太刀装備です。', '被弾を気にせず攻撃できる高防御ハンマー装備です。', '高い会心率で継続的なダメージを出せる双剣装備です。'][$i] }}
-                        </p>
+    <div class="divide-y divide-gray-700">
+        @foreach (['驚異的火力の大剣装備', '回復サポート向け狩猟笛', '超火力ボウガン装備', '生存特化ランス装備', '万能型チャージアックス'] as $index => $build)
+            <div class="flex items-center p-4 transition">
+                <div
+                    class="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-red-600 text-white text-sm font-bold">
+                    {{ $index + 1 }}
+                </div>
+                <div class="ml-4 flex-1">
+                    <a href="/builds/{{ $index + 1 }}"
+                        class="text-sm font-medium text-white hover:text-red-400">
+                        <h4>{{ $build }}</h4>
+                    </a>
+                    {{-- タグ --}}
+                    <div class="mt-2 overflow-x-auto pb-1">
+                        <div class="flex gap-1 whitespace-nowrap">
+                            @foreach (['大剣', '火力', '装備'] as $tag)
+                                <a href="#"
+                                    class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    {{ $tag }}
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
-                    <div class="mt-4 flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <span
-                                    class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-500 text-white">
-                                    {{ ['MH', 'TK', 'AK'][$i] }}
-                                </span>
-                            </div>
-                            <div class="ml-2">
-                                <p class="text-xs text-gray-400">
-                                    {{ ['モンハン名人', 'タケル', 'アカネ'][$i] }}
-                                </p>
-                            </div>
+                    {{-- スキル --}}
+                    <div class="mt-2 overflow-x-auto pb-1">
+                        <div class="flex gap-1 whitespace-nowrap">
+                            @foreach (['攻撃力', '会心率', '火属性攻撃強化'] as $skill)
+                                <a href="#"
+                                    class="text-xs px-1.5 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700">
+                                    {{ $skill }} Lv{{ rand(1, 3) }}
+                                </a>
+                            @endforeach
                         </div>
+                    </div>
+                    <div class="mt-1 flex items-center gap-4">
                         <div class="flex items-center text-sm text-gray-400">
-                            <flux:icon.heart class="h-4 w-4 mr-1" />
-                            {{ rand(10, 99) }}
+                            <flux:icon.heart class="mr-1 h-4 w-4" />
+                            {{ rand(100, 999) }}
                         </div>
+                        <span class="flex items-center text-sm text-gray-400">
+                            <flux:icon.chat-bubble-oval-left class="mr-1 h-4 w-4" />
+                            {{ rand(10, 99) }}
+                        </span>
                     </div>
                 </div>
             </div>
         @endforeach
+    </div>
+    <div class="border-t border-gray-700 p-4">
+        <a href="#"
+            class="text-sm font-medium text-red-400 hover:text-red-300">
+            もっと見る →
+        </a>
     </div>
 </div>

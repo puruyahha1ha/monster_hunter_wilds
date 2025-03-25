@@ -10,15 +10,15 @@
 
     <div class="grid grid-cols-1 gap-2">
         @foreach (['新しいイベントが開催されます', '新しいモンスターが追加されました', '新しい装備が追加されました', '新しいクエストが追加されました', '新しいアイテムが追加されました'] as $index => $news)
-            <div
-                class="group relative overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition hover:shadow-md">
+            <a href="#"
+                class="group relative overflow-hidden rounded-lg border border-gray-700 bg-gray-800 transition hover:border-red-400">
                 <div class="p-3 flex items-center">
-                    <a href="#" class="font-medium text-white hover:text-red-400 flex items-center">
-                        <flux:icon.bell class="h-5 w-5 mr-2 text-gray-400" />
+                    <span class="font-medium text-white flex items-center group-hover:text-red-400">
+                        <flux:icon.bell class="h-5 w-5 mr-2 text-gray-400 group-hover:text-red-400" />
                         {{ $news }}
-                    </a>
+                    </span>
                 </div>
-            </div>
+            </a>
         @endforeach
     </div>
 </div>

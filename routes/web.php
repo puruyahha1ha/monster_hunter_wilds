@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Home\Page as HomePage;
+use App\Livewire\Weapons\Page as WeaponsPage;
 use Laravel\WorkOS\Http\Middleware\ValidateSessionWithWorkOS;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 
 // トップページ
 Route::get('/', HomePage::class)->name('home');
+
+// 武器一覧
+Route::get('/weapons', WeaponsPage::class)->name('weapons');
 
 
 Route::middleware([

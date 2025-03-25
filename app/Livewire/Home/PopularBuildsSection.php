@@ -16,7 +16,6 @@ class PopularBuildsSection extends Component
 
     public function render()
     {
-        sleep(2);
         return view('livewire.home.popular-builds-section');
     }
 }

@@ -14,13 +14,15 @@
     @fluxAppearance
 </head>
 
-<body>
-
+<body class="h-full font-sans antialiased bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen flex flex-col">
     {{-- ヘッダー --}}
     <x-layouts.admin.header :title="$title ?? null" />
 
     {{-- メインコンテンツ --}}
-    {{ $slot }}
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {{ $slot }}
+    </main>
 
     {{-- フッター --}}
     <x-layouts.admin.footer />

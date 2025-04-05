@@ -34,7 +34,7 @@
                     <flux:icon.bars-3 class="h-6 w-6" />
                 </button>
 
-                <div class="ml-3 relative">
+                <div class="hidden ml-3 relative sm:block">
                     <div>
                         <button type="button" class="flex rounded-full dark:bg-gray-800" id="user-menu-button"
                             aria-expanded="false" aria-haspopup="true" @click="profileOpen = !profileOpen">
@@ -74,24 +74,88 @@
         </div>
     </div>
 
-    <div class="sm:hidden" id="mobile-menu" x-show="mobileMenuOpen"
-        x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95"
-        x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
-        x-transition:leave-start="transform opacity-100 scale-100"
-        x-transition:leave-end="transform opacity-0 scale-95">
-        <div class="space-y-1 px-2 pb-3 pt-2">
-            <a href="{{ route('admin.dashboard') }}"
-                class="{{ request()->routeIs('admin.dashboard') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }} block px-3 py-2 rounded-md text-base font-medium">
-                ダッシュボード
-            </a>
-            <a href="{{ route('admin.weapons.index') }}"
-                class="{{ request()->routeIs('admin.weapons.*') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }} block px-3 py-2 rounded-md text-base font-medium">
-                武器管理
-            </a>
-            <a href="{{ route('admin.users.index') }}"
-                class="{{ request()->routeIs('admin.users.*') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }} block px-3 py-2 rounded-md text-base font-medium">
-                ユーザー管理
-            </a>
+    <!-- モバイルメニュー - 右からスライドイン -->
+    <div class="fixed inset-0 z-40 sm:hidden" x-show="mobileMenuOpen" x-cloak>
+        <!-- 背景オーバーレイ -->
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" x-show="mobileMenuOpen"
+            x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="mobileMenuOpen = false">
+        </div>
+
+        <!-- サイドナビゲーション -->
+        <div class="fixed inset-y-0 right-0 w-full max-w-xs bg-white dark:bg-gray-800 overflow-y-auto"
+            x-show="mobileMenuOpen" x-transition:enter="transition ease-in-out duration-300 transform"
+            x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full">
+
+            <div class="p-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-medium text-gray-900 dark:text-white">メニュー</h2>
+                <button type="button" @click="mobileMenuOpen = false"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                    <span class="sr-only">メニューを閉じる</span>
+                    <flux:icon.x-mark class="h-6 w-6" />
+                </button>
+            </div>
+
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="py-3 px-4">
+                    <div class="flex items-center mb-4">
+                        <div
+                            class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white mr-3">
+                            <flux:icon.user class="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                {{ auth()->guard('admin')->user() ? auth()->guard('admin')->user()->name : 'Admin' }}
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                管理者
+                            </p>
+                        </div>
+                    </div>
+                    <button wire:click="logout"
+                        class="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                        ログアウト
+                    </button>
+                </div>
+
+                <nav class="py-2">
+                    <a href="{{ route('admin.dashboard') }}" wire:navigate
+                        class="{{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        <flux:icon.home class="h-5 w-5 mr-3 text-gray-400" />
+                        ダッシュボード
+                    </a>
+                    <a href="{{ route('admin.weapons.index') }}" wire:navigate
+                        class="{{ request()->routeIs('admin.weapons.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
+                        武器管理
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" wire:navigate
+                        class="{{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        <flux:icon.users class="h-5 w-5 mr-3 text-gray-400" />
+                        ユーザー管理
+                    </a>
+                </nav>
+
+                <div class="py-4 px-4">
+                    <div class="flex items-center">
+                        <flux:icon.cog-6-tooth class="h-5 w-5 text-gray-400 mr-3" />
+                        <a href="#"
+                            class="text-sm text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+                            設定
+                        </a>
+                    </div>
+                    <div class="flex items-center mt-3">
+                        <flux:icon.question-mark-circle class="h-5 w-5 text-gray-400 mr-3" />
+                        <a href="#"
+                            class="text-sm text-gray-700 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400">
+                            ヘルプ
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </header>

@@ -26,7 +26,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
     public function with(): array
     {
-        $query = WeaponSkill::query()->with('levels');
+        $query = WeaponSkill::query()->with(['levels', 'weapons']);
 
         if (!empty($this->search)) {
             $query->where('name', 'like', '%' . $this->search . '%')->orWhere('description', 'like', '%' . $this->search . '%');

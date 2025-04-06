@@ -60,7 +60,7 @@ Route::prefix('admin')->group(function () {
                 ->name('confirm-delete');
         });
 
-        // スキル管理
+        // 武器スキル管理
         Route::prefix('weapon-skills')->name('admin.weapon-skills.')->group(function () {
             Volt::route('/', 'admin.weapon-skills.index')
                 ->name('index');

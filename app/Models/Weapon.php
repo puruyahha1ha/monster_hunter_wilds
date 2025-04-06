@@ -114,7 +114,7 @@ class Weapon extends Model
      */
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(WeaponSkill::class, 'weapon_weapon_skills')
+        return $this->belongsToMany(WeaponSkill::class, 'weapon_weapon_skill')
             ->withPivot('level')
             ->withTimestamps();
     }

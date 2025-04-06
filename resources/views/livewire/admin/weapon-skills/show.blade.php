@@ -87,15 +87,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                ステータス
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                効果値
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                効果タイプ
+                                効果詳細
                             </th>
                         </tr>
                     </thead>
@@ -109,31 +101,37 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                 <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     {{ $level->effect_description }}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $level->effect_type === 'multiply' ? number_format($level->effect_value, 2) : $level->effect_value }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    @if ($level->effect_type === 'add')
-                                        {{ $levelStatuses[$level->effect_status] ?? $level->effect_status }}
-                                        +{{ $level->effect_value }}
-                                    @elseif($level->effect_type === 'multiply')
-                                        {{ $levelStatuses[$level->effect_status] ?? $level->effect_status }}
-                                        ×{{ number_format($level->effect_value, 2) }}
-                                        ({{ number_format(($level->effect_value - 1) * 100, 0) }}% 増加)
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $levelTypes[$level->effect_type] ?? $level->effect_type }}
-                                    @if ($level->effect_type === 'multiply')
-                                        ({{ $level->effect_value }}%)
-                                    @endif
+                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <div class="space-y-2">
+                                        @foreach ($level->effects as $effect)
+                                            <div class="flex items-center">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200 mr-2">
+                                                    {{ $effectStatuses[$effect->effect_status] ?? $effect->effect_status }}
+                                                </span>
+                                                @if ($effect->effect_type === 'add')
+                                                    <span
+                                                        class="text-green-600 dark:text-green-400">+{{ $effect->effect_value }}</span>
+                                                @elseif($effect->effect_type === 'multiply')
+                                                    <span class="text-blue-600 dark:text-blue-400">
+                                                        ×{{ number_format($effect->effect_value, 2) }}
+                                                        ({{ number_format(($effect->effect_value - 1) * 100, 0) }}% 増加)
+                                                    </span>
+                                                @else
+                                                    <span class="text-gray-500 dark:text-gray-400">効果なし</span>
+                                                @endif
+
+                                                <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $effectTypes[$effect->effect_type] ?? $effect->effect_type }}
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5"
+                                <td colspan="3"
                                     class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                     スキルレベルが設定されていません
                                 </td>
@@ -198,7 +196,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                         @else
                                             <div
                                                 class="h-10 w-10 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                                <flux:icon.no-symbol class="h-6 w-6 text-gray-400" />
+                                                <span class="text-gray-400">N/A</span>
                                             </div>
                                         @endif
                                     </td>

@@ -59,7 +59,21 @@ Route::prefix('admin')->group(function () {
             Volt::route('/confirm-delete/{user}', 'admin.users.confirm-delete')
                 ->name('confirm-delete');
         });
+
+        // スキル管理
+        Route::prefix('weapon-skills')->name('admin.weapon-skills.')->group(function () {
+            Volt::route('/', 'admin.weapon-skills.index')
+                ->name('index');
+            Volt::route('/create', 'admin.weapon-skills.create')
+                ->name('create');
+            Volt::route('/edit/{skill}', 'admin.weapon-skills.edit')
+                ->name('edit');
+            Volt::route('/show/{skill}', 'admin.weapon-skills.show')
+                ->name('show');
+            Volt::route('/delete/{skill}', 'admin.weapon-skills.delete')
+                ->name('delete');
+        });
     });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -15,9 +15,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('weapon_skill_id')->constrained('weapon_skills')->onDelete('cascade')->comment('スキルID');
             $table->unsignedTinyInteger('level')->default(1)->comment('スキルレベル');
-            $table->text('effecf_description')->comment('効果説明');
+            $table->text('effect_description')->comment('効果説明');
+            $table->timestamps();
+
+            $table->unique(['weapon_skill_id', 'level']);
+        });
+
+        Schema::create('skill_level_effects', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('weapon_skill_level_id')->constrained('weapon_skill_levels')->onDelete('cascade')->comment('スキルレベルID');
             $table->enum('effect_status', ['attack', 'defense', 'sharpness'])->default('attack')->comment('適応ステータス');
-            $table->unsignedInteger('effect_value')->default(0)->comment('効果値');
+            $table->decimal('effect_value', 8, 2)->default(0)->comment('効果値');
             $table->enum('effect_type', ['none', 'add', 'multiply'])->default('none')->comment('効果タイプ');
             $table->timestamps();
         });
@@ -28,6 +36,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('skill_level_effects');
         Schema::dropIfExists('weapon_skill_levels');
     }
 };

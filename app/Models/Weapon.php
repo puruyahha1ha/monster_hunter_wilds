@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Weapon extends Model
 {
@@ -26,36 +25,51 @@ class Weapon extends Model
         'slot_3',
         'image_path',
     ];
-    protected $casts = [
-        'parent_weapon_id' => 'integer',
-        'name' => 'string',
-        'weapon_type' => 'string',
-        'rarity' => 'integer',
-        'attack' => 'integer',
-        'defense' => 'integer',
-        'element_type' => 'string',
-        'element_value' => 'integer',
-        'slot_1' => 'integer',
-        'slot_2' => 'integer',
-        'slot_3' => 'integer',
-        'image_path' => 'string',
-    ];
-    protected $attributes = [
-        'parent_weapon_id' => null,
-        'name' => '',
-        'weapon_type' => '大剣',
-        'rarity' => 1,
-        'attack' => 0,
-        'defense' => 0,
-        'element_type' => 'なし',
-        'element_value' => 0,
-        'slot_1' => 0,
-        'slot_2' => 0,
-        'slot_3' => 0,
-        'image_path' => null,
-    ];
-    protected $table = 'weapons';
-    public static function weaponTypes(): array
+
+    /**
+     * この武器の親武器を取得
+     */
+    public function parentWeapon(): BelongsTo
+    {
+        return $this->belongsTo(Weapon::class, 'parent_weapon_id');
+    }
+
+    /**
+     * この武器の子武器（強化先）を取得
+     */
+    public function childWeapons(): HasMany
+    {
+        return $this->hasMany(Weapon::class, 'parent_weapon_id');
+    }
+
+    /**
+     * 武器の切れ味データを取得
+     */
+    public function sharpnesses(): HasMany
+    {
+        return $this->hasMany(Sharpness::class);
+    }
+
+    /**
+     * 通常の切れ味を取得
+     */
+    public function normalSharpness()
+    {
+        return $this->sharpnesses()->where('is_handicraft', 0)->first();
+    }
+
+    /**
+     * 匠スキル適用時の切れ味を取得
+     */
+    public function handicraftSharpness()
+    {
+        return $this->sharpnesses()->where('is_handicraft', 1)->first();
+    }
+
+    /**
+     * 武器種別の選択肢を取得
+     */
+    public static function getWeaponTypes(): array
     {
         return [
             '大剣',
@@ -75,44 +89,11 @@ class Weapon extends Model
         ];
     }
 
-
-    public static function elementTypes(): array
-    {
-        return [
-            'なし',
-            '火',
-            '水',
-            '雷',
-            '氷',
-            '龍',
-            '毒',
-            '麻痺',
-            '睡眠',
-            '爆破'
-        ];
-    }
-
     /**
-     * Get the weapon's sharpness information.
+     * 属性種別の選択肢を取得
      */
-    public function sharpness(): HasOne
+    public static function getElementTypes(): array
     {
-        return $this->hasOne(Sharpness::class);
-    }
-
-    /**
-     * Get the parent weapon.
-     */
-    public function parentWeapon(): BelongsTo
-    {
-        return $this->belongsTo(Weapon::class, 'parent_weapon_id');
-    }
-
-    /**
-     * Get the child weapons.
-     */
-    public function childWeapons(): HasMany
-    {
-        return $this->hasMany(Weapon::class, 'parent_weapon_id');
+        return ['なし', '火', '水', '雷', '氷', '龍', '毒', '麻痺', '睡眠', '爆破'];
     }
 }

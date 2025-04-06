@@ -123,17 +123,20 @@
 
                 <nav class="py-2">
                     <a href="{{ route('admin.dashboard') }}" wire:navigate
-                        class="{{ request()->routeIs('admin.dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        wire:current="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                        class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30">
                         <flux:icon.home class="h-5 w-5 mr-3 text-gray-400" />
                         ダッシュボード
                     </a>
                     <a href="{{ route('admin.weapons.index') }}" wire:navigate
-                        class="{{ request()->routeIs('admin.weapons.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        wire:current="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                        class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30">
                         <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
                         武器管理
                     </a>
                     <a href="{{ route('admin.users.index') }}" wire:navigate
-                        class="{{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30' }} flex items-center px-4 py-3 text-base font-medium">
+                        wire:current="bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                        class="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/30">
                         <flux:icon.users class="h-5 w-5 mr-3 text-gray-400" />
                         ユーザー管理
                     </a>

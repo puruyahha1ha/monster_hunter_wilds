@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Weapon;
+use App\Models\WeaponSkill;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
@@ -10,6 +11,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
     public string $search = '';
     public string $weaponType = '';
+    public string $skillFilter = '';
 
     public function updatingSearch()
     {
@@ -17,6 +19,11 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     }
 
     public function updatingWeaponType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSkillFilter()
     {
         $this->resetPage();
     }
@@ -32,7 +39,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
     public function with(): array
     {
-        $query = Weapon::query();
+        $query = Weapon::with(['skills']);
 
         if (!empty($this->search)) {
             $query->where('name', 'like', '%' . $this->search . '%');
@@ -42,9 +49,16 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             $query->where('weapon_type', $this->weaponType);
         }
 
+        if (!empty($this->skillFilter)) {
+            $query->whereHas('skills', function ($q) {
+                $q->where('weapon_skills.id', $this->skillFilter);
+            });
+        }
+
         return [
             'weapons' => $query->orderBy('id', 'desc')->paginate(10),
             'weaponTypes' => Weapon::getWeaponTypes(),
+            'weaponSkills' => WeaponSkill::orderBy('name')->get(),
         ];
     }
 }; ?>
@@ -60,14 +74,14 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         </div>
 
         <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <div class="w-full md:w-1/2">
+            <div class="w-full md:w-1/3">
                 <label for="search"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">武器名検索</label>
                 <input type="text" id="search" wire:model.live.debounce.300ms="search"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     placeholder="武器名を入力...">
             </div>
-            <div class="w-full md:w-1/2">
+            <div class="w-full md:w-1/3">
                 <label for="weaponType"
                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">武器種別</label>
                 <select id="weaponType" wire:model.live="weaponType"
@@ -75,6 +89,17 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <option value="">すべて</option>
                     @foreach ($weaponTypes as $type)
                         <option value="{{ $type }}">{{ $type }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-full md:w-1/3">
+                <label for="skillFilter"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">スキルで絞り込み</label>
+                <select id="skillFilter" wire:model.live="skillFilter"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option value="">すべて</option>
+                    @foreach ($weaponSkills as $skill)
+                        <option value="{{ $skill->id }}">{{ $skill->name }}</option>
                     @endforeach
                 </select>
             </div>
@@ -107,6 +132,10 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             属性
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            スキル
                         </th>
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -153,6 +182,18 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                     -
                                 @endif
                             </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                <div class="flex flex-wrap gap-1">
+                                    @forelse($weapon->skills as $skill)
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            {{ $skill->name }} Lv.{{ $skill->pivot->level }}
+                                        </span>
+                                    @empty
+                                        -
+                                    @endforelse
+                                </div>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
@@ -178,7 +219,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                 武器が見つかりませんでした
                             </td>
                         </tr>

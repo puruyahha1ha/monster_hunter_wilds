@@ -264,7 +264,6 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                     <option value="1">レベル1</option>
                                     <option value="2">レベル2</option>
                                     <option value="3">レベル3</option>
-                                    <option value="4">レベル4</option>
                                 </select>
                                 @error('slot_1') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>

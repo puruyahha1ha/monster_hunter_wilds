@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Weapon extends Model
 {
@@ -27,7 +28,49 @@ class Weapon extends Model
     ];
 
     /**
-     * この武器の親武器を取得
+     * 武器種別の一覧を取得
+     */
+    public static function getWeaponTypes(): array
+    {
+        return [
+            '大剣',
+            '太刀',
+            '片手剣',
+            '双剣',
+            'ハンマー',
+            '狩猟笛',
+            'ランス',
+            'ガンランス',
+            'スラッシュアックス',
+            'チャージアックス',
+            '操虫棍',
+            'ライトボウガン',
+            'ヘビィボウガン',
+            '弓'
+        ];
+    }
+
+    /**
+     * 属性種別の一覧を取得
+     */
+    public static function getElementTypes(): array
+    {
+        return [
+            'なし',
+            '火',
+            '水',
+            '雷',
+            '氷',
+            '龍',
+            '毒',
+            '麻痺',
+            '睡眠',
+            '爆破'
+        ];
+    }
+
+    /**
+     * 親武器（強化元）との関連
      */
     public function parentWeapon(): BelongsTo
     {
@@ -35,7 +78,7 @@ class Weapon extends Model
     }
 
     /**
-     * この武器の子武器（強化先）を取得
+     * 子武器（強化先）との関連
      */
     public function childWeapons(): HasMany
     {
@@ -43,7 +86,7 @@ class Weapon extends Model
     }
 
     /**
-     * 武器の切れ味データを取得
+     * 切れ味データとの関連
      */
     public function sharpnesses(): HasMany
     {
@@ -67,33 +110,12 @@ class Weapon extends Model
     }
 
     /**
-     * 武器種別の選択肢を取得
+     * スキルとの関連付け
      */
-    public static function getWeaponTypes(): array
+    public function skills(): BelongsToMany
     {
-        return [
-            '大剣',
-            '太刀',
-            '片手剣',
-            '双剣',
-            'ハンマー',
-            '狩猟笛',
-            'ランス',
-            'ガンランス',
-            'スラッシュアックス',
-            'チャージアックス',
-            '操虫棍',
-            'ライトボウガン',
-            'ヘビィボウガン',
-            '弓'
-        ];
-    }
-
-    /**
-     * 属性種別の選択肢を取得
-     */
-    public static function getElementTypes(): array
-    {
-        return ['なし', '火', '水', '雷', '氷', '龍', '毒', '麻痺', '睡眠', '爆破'];
+        return $this->belongsToMany(WeaponSkill::class, 'weapon_weapon_skills')
+            ->withPivot('level')
+            ->withTimestamps();
     }
 }

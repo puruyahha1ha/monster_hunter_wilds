@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\Attributes\Validate;
+use Illuminate\Validation\ValidationException; 
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
     #[Validate('required|string|email')]

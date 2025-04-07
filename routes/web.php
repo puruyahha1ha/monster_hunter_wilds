@@ -60,17 +60,17 @@ Route::prefix('admin')->group(function () {
                 ->name('confirm-delete');
         });
 
-        // 武器スキル管理
-        Route::prefix('weapon-skills')->name('admin.weapon-skills.')->group(function () {
-            Volt::route('/', 'admin.weapon-skills.index')
+        // スキル管理
+        Route::prefix('skills')->name('admin.weapon-skills.')->group(function () {
+            Volt::route('/', 'admin.skills.index')
                 ->name('index');
-            Volt::route('/create', 'admin.weapon-skills.create')
+            Volt::route('/create', 'admin.skills.create')
                 ->name('create');
-            Volt::route('/edit/{skill}', 'admin.weapon-skills.edit')
+            Volt::route('/edit/{skill}', 'admin.skills.edit')
                 ->name('edit');
-            Volt::route('/show/{skill}', 'admin.weapon-skills.show')
+            Volt::route('/show/{skill}', 'admin.skills.show')
                 ->name('show');
-            Volt::route('/delete/{skill}', 'admin.weapon-skills.delete')
+            Volt::route('/delete/{skill}', 'admin.skills.delete')
                 ->name('delete');
         });
     });

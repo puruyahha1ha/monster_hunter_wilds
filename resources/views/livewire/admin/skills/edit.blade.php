@@ -239,9 +239,9 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 }; ?>
 
 <div>
-    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+    <div class="bg-gray-800 shadow-sm rounded-lg p-6">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">スキル編集: {{ $skill->name }}</h1>
+            <h1 class="text-2xl font-bold text-white">スキル編集: {{ $skill->name }}</h1>
             <div class="flex space-x-2">
                 <a href="{{ route('admin.weapon-skills.show', $skill) }}" wire:navigate
                     class="px-4 py-2 bg-indigo-500 text-white rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -263,17 +263,16 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         <form wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 gap-6">
                 {{-- 基本情報セクション --}}
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">基本情報</h2>
+                <div class="bg-gray-700 p-4 rounded-md">
+                    <h2 class="text-lg font-semibold text-white mb-4">基本情報</h2>
 
-                    <div class="grid grid-cols-1 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {{-- スキル名 --}}
                         <div>
-                            <label for="name"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">スキル名 <span
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-1">スキル名 <span
                                     class="text-red-600">*</span></label>
                             <input type="text" id="name" wire:model="name" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
                             @error('name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -281,11 +280,10 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
                         {{-- スキル説明 --}}
                         <div>
-                            <label for="description"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">スキル説明 <span
+                            <label for="description" class="block text-sm font-medium text-gray-300 mb-1">スキル説明 <span
                                     class="text-red-600">*</span></label>
-                            <textarea id="description" wire:model="description" rows="3" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                            <textarea id="description" wire:model="description" rows="1" required
+                                class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white"></textarea>
                             @error('description')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -294,119 +292,137 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </div>
 
                 {{-- スキルレベルセクション --}}
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
+                <div class="bg-gray-700 p-4 rounded-md">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">スキルレベル設定</h2>
+                        <h2 class="text-lg font-semibold text-white">スキルレベル設定</h2>
                         <button type="button" wire:click="addSkillLevel"
                             class="px-3 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm">
                             レベル追加
                         </button>
                     </div>
 
-                    <div class="space-y-8">
+                    <div class="space-y-4">
                         @foreach ($skillLevels as $levelIndex => $level)
-                            <div
-                                class="border border-gray-200 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 overflow-hidden">
-                                <div class="bg-gray-100 dark:bg-gray-700 p-3 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <span
-                                            class="font-bold text-lg text-gray-700 dark:text-gray-300 mr-3">Lv.{{ $level['level'] }}</span>
+                            <div x-data="{ open: {{ $levelIndex === 0 ? 'true' : 'false' }} }"
+                                class="border border-gray-600 rounded-md bg-gray-800 overflow-hidden">
+                                {{-- レベル情報ヘッダー --}}
+                                <div class="bg-gray-700 p-3 grid grid-cols-12 items-center">
+                                    <span
+                                        class="font-bold text-lg text-gray-300 col-span-1">Lv.{{ $level['level'] }}</span>
+
+                                    <div class="col-span-9">
                                         <input type="text"
                                             wire:model="skillLevels.{{ $levelIndex }}.effect_description"
                                             placeholder="効果説明（例: 攻撃力が上昇する）"
-                                            class="px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white w-96">
+                                            class="px-3 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white w-full">
+                                        @error("skillLevels.{$levelIndex}.effect_description")
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
                                     </div>
-                                    <button type="button" wire:click="removeSkillLevel({{ $levelIndex }})"
-                                        @if (count($skillLevels) === 1) disabled @endif
-                                        class="px-3 py-1 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                        レベル削除
-                                    </button>
+
+                                    <div class="col-span-2 flex items-center justify-end space-x-2">
+                                        <button type="button" @click="open = !open"
+                                            class="px-2 py-1 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm">
+                                            <span x-show="!open">詳細を表示</span>
+                                            <span x-show="open">詳細を隠す</span>
+                                        </button>
+                                        <button type="button" wire:click="removeSkillLevel({{ $levelIndex }})"
+                                            @if (count($skillLevels) === 1) disabled @endif
+                                            class="px-2 py-1 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                            削除
+                                        </button>
+                                    </div>
                                 </div>
 
-                                @error("skillLevels.{$levelIndex}.effect_description")
-                                    <p class="mt-1 text-sm text-red-600 px-3">{{ $message }}</p>
-                                @enderror
+                                {{-- 効果設定 (アコーディオンの中身) --}}
+                                <div x-show="open" x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 transform scale-90"
+                                    x-transition:enter-end="opacity-100 transform scale-100"
+                                    x-transition:leave="transition ease-in duration-100"
+                                    x-transition:leave-start="opacity-100 transform scale-100"
+                                    x-transition:leave-end="opacity-0 transform scale-90" class="p-3 space-y-2">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-700">
+                                            <thead class="bg-gray-700">
+                                                <tr>
+                                                    <th
+                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                        適用ステータス</th>
+                                                    <th
+                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                        効果タイプ</th>
+                                                    <th
+                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                        効果値</th>
+                                                    <th
+                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                                        操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                                                @foreach ($level['effects'] as $effectIndex => $effect)
+                                                    <tr>
+                                                        <td class="px-3 py-2 whitespace-nowrap">
+                                                            <select
+                                                                wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_status"
+                                                                class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
+                                                                @foreach ($effectStatuses as $value => $label)
+                                                                    <option value="{{ $value }}">
+                                                                        {{ $label }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_status")
+                                                                <p class="mt-1 text-xs text-red-600">{{ $message }}
+                                                                </p>
+                                                            @enderror
+                                                        </td>
+                                                        <td class="px-3 py-2 whitespace-nowrap">
+                                                            <select
+                                                                wire:model.live="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_type"
+                                                                class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
+                                                                @foreach ($effectTypes as $value => $label)
+                                                                    <option value="{{ $value }}">
+                                                                        {{ $label }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_type")
+                                                                <p class="mt-1 text-xs text-red-600">{{ $message }}
+                                                                </p>
+                                                            @enderror
+                                                        </td>
+                                                        <td class="px-3 py-2 whitespace-nowrap">
+                                                            <div>
+                                                                <input type="number"
+                                                                    wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_value"
+                                                                    step="{{ $skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply' ? '0.01' : '1' }}"
+                                                                    min="0"
+                                                                    class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
 
-                                <div class="p-3 space-y-4">
-                                    <!-- 効果設定 -->
-                                    <div class="space-y-3">
-                                        @foreach ($level['effects'] as $effectIndex => $effect)
-                                            <div
-                                                class="grid grid-cols-1 md:grid-cols-12 gap-4 p-3 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
-                                                <!-- 適用ステータス -->
-                                                <div class="md:col-span-3">
-                                                    <label
-                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">適用ステータス
-                                                        <span class="text-red-600">*</span></label>
-                                                    <select
-                                                        wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_status"
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                        @foreach ($effectStatuses as $value => $label)
-                                                            <option value="{{ $value }}">{{ $label }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_status")
-                                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                                    @enderror
-                                                </div>
+                                                                @if ($skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply')
+                                                                    <p class="text-xs text-gray-400">例: 1.05 = 5%増加</p>
+                                                                @endif
 
-                                                <!-- 効果タイプ -->
-                                                <div class="md:col-span-3">
-                                                    <label
-                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">効果タイプ
-                                                        <span class="text-red-600">*</span></label>
-                                                    <select
-                                                        wire:model.live="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_type"
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                        @foreach ($effectTypes as $value => $label)
-                                                            <option value="{{ $value }}">{{ $label }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                    @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_type")
-                                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                                    @enderror
-                                                </div>
-
-                                                <!-- 効果値 -->
-                                                <div class="md:col-span-3">
-                                                    <label
-                                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">効果値
-                                                        <span class="text-red-600">*</span></label>
-                                                    <!-- 乗算の場合は小数点入力を可能にする -->
-                                                    <input
-                                                        type="{{ $skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply' ? 'number' : 'number' }}"
-                                                        wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_value"
-                                                        step="{{ $skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply' ? '0.01' : '1' }}"
-                                                        min="0"
-                                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-
-                                                    @if ($skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply')
-                                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                                            小数点第2位まで入力可能（例: 1.05 = 5%増加）</p>
-                                                    @endif
-
-                                                    @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_value")
-                                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                                    @enderror
-                                                </div>
-
-                                                <!-- 削除ボタン -->
-                                                <div class="md:col-span-3 flex items-end justify-between">
-                                                    <button type="button"
-                                                        wire:click="removeEffect({{ $levelIndex }}, {{ $effectIndex }})"
-                                                        @if (count($level['effects']) === 1) disabled @endif
-                                                        class="px-3 py-2 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                                        効果削除
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                                                @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_value")
+                                                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                                                @enderror
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-3 py-2 whitespace-nowrap">
+                                                            <button type="button"
+                                                                wire:click="removeEffect({{ $levelIndex }}, {{ $effectIndex }})"
+                                                                @if (count($level['effects']) === 1) disabled @endif
+                                                                class="px-2 py-1 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+                                                                削除
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     </div>
 
                                     <!-- 効果追加ボタン -->
-                                    <div class="flex justify-center">
+                                    <div class="flex justify-end mt-2">
                                         <button type="button" wire:click="addEffect({{ $levelIndex }})"
                                             class="px-3 py-1 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
                                             効果を追加

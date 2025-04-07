@@ -14,7 +14,7 @@
     @fluxAppearance
 </head>
 
-<body class="h-full font-sans antialiased bg-gray-50 dark:bg-gray-900">
+<body class="h-full font-sans antialiased bg-gray-900">
     <div class="min-h-screen flex flex-col">
     {{-- ヘッダー --}}
     <x-layouts.admin.header :title="$title ?? null" />

@@ -42,7 +42,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     <div class="bg-gray-800 shadow-sm rounded-lg p-6">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-white mb-4 md:mb-0">スキル管理</h1>
-            <a href="{{ route('admin.weapon-skills.create') }}" wire:navigate
+            <a href="{{ route('admin.skills.create') }}" wire:navigate
                 class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 新規スキル追加
             </a>
@@ -107,15 +107,15 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
-                                    <a href="{{ route('admin.weapon-skills.show', $skill) }}" wire:navigate
+                                    <a href="{{ route('admin.skills.show', $skill) }}" wire:navigate
                                         class="text-indigo-400 hover:text-indigo-300">
                                         詳細
                                     </a>
-                                    <a href="{{ route('admin.weapon-skills.edit', $skill) }}" wire:navigate
+                                    <a href="{{ route('admin.skills.edit', $skill) }}" wire:navigate
                                         class="text-amber-400 hover:text-amber-300">
                                         編集
                                     </a>
-                                    <a href="{{ route('admin.weapon-skills.delete', $skill) }}" wire:navigate
+                                    <a href="{{ route('admin.skills.delete', $skill) }}" wire:navigate
                                         class="text-red-400 hover:text-red-300">
                                         削除
                                     </a>

@@ -19,10 +19,10 @@
                     wire:current="bg-indigo-900 text-indigo-300">
                     武器管理
                 </a>
-                <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+                <a href="{{ route('admin.skills.index') }}" wire:navigate
                     class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
                     wire:current="bg-indigo-900 text-indigo-300">
-                    武器スキル管理
+                    スキル管理
                 </a>
                 <a href="{{ route('admin.users.index') }}" wire:navigate
                     class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
@@ -139,11 +139,11 @@
                         <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
                         武器管理
                     </a>
-                    <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+                    <a href="{{ route('admin.skills.index') }}" wire:navigate
                         wire:current="bg-indigo-900/30 text-indigo-300"
                         class="flex items-center px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">
                         <flux:icon.biceps-flexed class="h-5 w-5 mr-3 text-gray-400" />
-                        武器スキル管理
+                        スキル管理
                     </a>
                     <a href="{{ route('admin.users.index') }}" wire:navigate
                         wire:current="bg-indigo-900/30 text-indigo-300"

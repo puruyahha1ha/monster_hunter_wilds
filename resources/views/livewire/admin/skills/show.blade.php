@@ -40,11 +40,11 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-white">スキル詳細: {{ $skill->name }}</h1>
             <div class="flex space-x-2">
-                <a href="{{ route('admin.weapon-skills.edit', $skill) }}" wire:navigate
+                <a href="{{ route('admin.skills.edit', $skill) }}" wire:navigate
                     class="px-4 py-2 bg-amber-600 text-white rounded-md shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
                     編集
                 </a>
-                <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+                <a href="{{ route('admin.skills.index') }}" wire:navigate
                     class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                     スキル一覧に戻る
                 </a>

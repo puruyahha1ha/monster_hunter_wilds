@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('weapon_skills', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255)->comment('スキル名');
-            $table->text('description')->comment('スキル説明');
+            $table->string('name')->comment('グループ名');
+            $table->string('description')->comment('グループ説明');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('weapon_skills');
+        Schema::dropIfExists('groups');
     }
 };

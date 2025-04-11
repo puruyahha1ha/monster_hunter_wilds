@@ -174,7 +174,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         session()->flash('message', 'スキルが正常に更新されました。');
 
         // スキル詳細ページへリダイレクト
-        $this->redirect(route('admin.weapon-skills.show', $this->skill), navigate: true);
+        $this->redirect(route('admin.skills.show', $this->skill), navigate: true);
     }
 
     public function mount(WeaponSkill $skill)
@@ -243,11 +243,11 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-white">スキル編集: {{ $skill->name }}</h1>
             <div class="flex space-x-2">
-                <a href="{{ route('admin.weapon-skills.show', $skill) }}" wire:navigate
+                <a href="{{ route('admin.skills.show', $skill) }}" wire:navigate
                     class="px-4 py-2 bg-indigo-500 text-white rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     詳細に戻る
                 </a>
-                <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+                <a href="{{ route('admin.skills.index') }}" wire:navigate
                     class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                     スキル一覧に戻る
                 </a>
@@ -421,7 +421,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                         </table>
                                     </div>
 
-                                    <!-- 効果追加ボタン -->
+                                    {{-- 効果追加ボタン --}}
                                     <div class="flex justify-end mt-2">
                                         <button type="button" wire:click="addEffect({{ $levelIndex }})"
                                             class="px-3 py-1 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">

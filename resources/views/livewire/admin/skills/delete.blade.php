@@ -15,7 +15,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         session()->flash('message', 'スキルが正常に削除されました。');
 
         // スキル一覧へリダイレクト
-        $this->redirect(route('admin.weapon-skills.index'), navigate: true);
+        $this->redirect(route('admin.skills.index'), navigate: true);
     }
 
     public function with(): array
@@ -30,7 +30,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">スキル削除確認</h1>
-            <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+            <a href="{{ route('admin.skills.index') }}" wire:navigate
                 class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                 スキル一覧に戻る
             </a>
@@ -72,7 +72,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             </p>
 
             <div class="flex items-center justify-between">
-                <a href="{{ route('admin.weapon-skills.show', $skill) }}" wire:navigate
+                <a href="{{ route('admin.skills.show', $skill) }}" wire:navigate
                     class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                     キャンセル
                 </a>

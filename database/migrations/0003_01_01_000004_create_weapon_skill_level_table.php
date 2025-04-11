@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('weapon_weapon_skill', function (Blueprint $table) {
+        Schema::create('weapon_skill_level', function (Blueprint $table) {
             $table->id();
             $table->foreignId('weapon_id')->constrained('weapons')->onDelete('cascade')->comment('武器ID');
-            $table->foreignId('weapon_skill_id')->constrained('weapon_skills')->onDelete('cascade')->comment('スキルID');
-            $table->unsignedTinyInteger('level')->default(1)->comment('スキルレベル');
+            $table->foreignId('skill_level_id')->constrained('skill_levels')->onDelete('cascade')->comment('スキルレベルID');
             $table->timestamps();
         });
     }
@@ -25,6 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('weapon_weapon_skill');
+        Schema::table('weapon_skill_level', function (Blueprint $table) {
+            $table->dropForeign(['weapon_id']);
+            $table->dropForeign(['skill_level_id']);
+        });
+        Schema::dropIfExists('weapon_skill_level');
     }
 };

@@ -61,7 +61,7 @@ Route::prefix('admin')->group(function () {
         });
 
         // スキル管理
-        Route::prefix('skills')->name('admin.weapon-skills.')->group(function () {
+        Route::prefix('skills')->name('admin.skills.')->group(function () {
             Volt::route('/', 'admin.skills.index')
                 ->name('index');
             Volt::route('/create', 'admin.skills.create')

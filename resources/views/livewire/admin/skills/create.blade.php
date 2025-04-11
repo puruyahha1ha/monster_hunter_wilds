@@ -120,7 +120,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         session()->flash('message', 'スキルが正常に追加されました。');
 
         // スキル一覧ページへリダイレクト
-        $this->redirect(route('admin.weapon-skills.index'), navigate: true);
+        $this->redirect(route('admin.skills.index'), navigate: true);
     }
 
     public function mount()
@@ -160,7 +160,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     <div class="bg-gray-800 shadow-sm rounded-lg p-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-white">新規スキル追加</h1>
-            <a href="{{ route('admin.weapon-skills.index') }}" wire:navigate
+            <a href="{{ route('admin.skills.index') }}" wire:navigate
                 class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                 スキル一覧に戻る
             </a>

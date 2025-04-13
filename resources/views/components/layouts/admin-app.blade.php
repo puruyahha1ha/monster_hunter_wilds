@@ -20,12 +20,12 @@
     <x-layouts.admin.header :title="$title ?? null" />
 
     {{-- メインコンテンツ --}}
-    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
         {{ $slot }}
     </main>
 
     {{-- フッター --}}
-    <x-layouts.admin.footer />
+    {{-- <x-layouts.admin.footer /> --}}
 
     @fluxScripts
 </body>

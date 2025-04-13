@@ -1,446 +1,223 @@
 <?php
 
-use App\Models\WeaponSkill;
-use App\Models\WeaponSkillLevel;
-use App\Models\SkillLevelEffect; // Missing import
+use App\Enums\SkillTypes;
+use App\Models\Skill;
+use App\Models\SkillLevel;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
-    public WeaponSkill $skill;
-
-    #[Validate('required|string|max:255')]
+    public Skill $skill;
+    #[Validate('required|string')]
     public string $name = '';
-
     #[Validate('required|string')]
     public string $description = '';
+    #[Validate('required|integer|min:1|max:10')]
+    public int $maxLevel = 1;
+    #[Validate('required|string|in:weapon,armor')]
+    public string $type = SkillTypes::WEAPON->value;
+    #[Validate('array')]
+    public array $levels = [];
 
-    // スキルレベル関連
-    public array $skillLevels = [];
-    public array $deletedLevelIds = [];
-    public array $deletedEffectIds = []; // Missing declaration
-
-    public function addSkillLevel()
+    public function mount(Skill $skill): void
     {
-        $nextLevel = empty($this->skillLevels) ? 1 : max(array_column($this->skillLevels, 'level')) + 1;
-        $this->skillLevels[] = [
-            'level' => $nextLevel,
-            'effect_description' => '',
-            'effects' => [
-                [
-                    'effect_status' => 'attack',
-                    'effect_value' => 0,
-                    'effect_type' => 'none',
-                ],
-            ],
-        ];
-    }
-
-    public function removeSkillLevel($index)
-    {
-        // Store ID for deletion if available
-        if (!empty($this->skillLevels[$index]['id'])) {
-            $this->deletedLevelIds[] = $this->skillLevels[$index]['id'];
-        }
-
-        unset($this->skillLevels[$index]);
-        $this->skillLevels = array_values($this->skillLevels);
-
-        // レベル番号を振り直す
-        foreach ($this->skillLevels as $i => $level) {
-            $this->skillLevels[$i]['level'] = $i + 1;
+        // 初期値の設定
+        $this->name = $skill->name;
+        $this->description = $skill->description;
+        $this->maxLevel = $skill->max_level;
+        $this->type = $skill->type->value;
+        for ($i = 1; $i <= $this->maxLevel; $i++) {
+            if (!isset($this->levels[$i])) {
+                $this->levels[$i] = [
+                    'description' => $skill->levels[$i - 1]->description ?? '',
+                ];
+            }
         }
     }
 
-    public function addEffect($levelIndex)
+    public function updatedMaxLevel(): void
     {
-        $this->skillLevels[$levelIndex]['effects'][] = [
-            'effect_status' => 'attack',
-            'effect_value' => 0,
-            'effect_type' => 'none',
-        ];
-    }
-
-    public function removeEffect($levelIndex, $effectIndex)
-    {
-        // Store ID for deletion if available
-        if (!empty($this->skillLevels[$levelIndex]['effects'][$effectIndex]['id'])) {
-            $this->deletedEffectIds[] = $this->skillLevels[$levelIndex]['effects'][$effectIndex]['id'];
-        }
-
-        if (count($this->skillLevels[$levelIndex]['effects']) > 1) {
-            unset($this->skillLevels[$levelIndex]['effects'][$effectIndex]);
-            $this->skillLevels[$levelIndex]['effects'] = array_values($this->skillLevels[$levelIndex]['effects']);
-        }
-    }
-
-    public function save()
-    {
-        // 乗算の場合は小数点を許可するカスタムバリデーション
-        $effectValueRules = [];
-
-        foreach ($this->skillLevels as $levelIndex => $level) {
-            foreach ($level['effects'] as $effectIndex => $effect) {
-                $path = "skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_value";
-
-                if ($effect['effect_type'] === 'multiply') {
-                    $effectValueRules[$path] = 'required|numeric|min:0';
-                } else {
-                    $effectValueRules[$path] = 'required|integer|min:0';
-                }
+        // 最大レベルに応じてlevels配列を調整
+        for ($i = 1; $i <= $this->maxLevel; $i++) {
+            if (!isset($this->levels[$i])) {
+                $this->levels[$i] = [
+                    'description' => '',
+                ];
             }
         }
 
-        // 基本バリデーション
+        // 最大レベルを超える要素を削除
+        foreach (array_keys($this->levels) as $key) {
+            if ($key > $this->maxLevel) {
+                unset($this->levels[$key]);
+            }
+        }
+    }
+
+    public function editSkill(): void
+    {
         $rules = [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string',
             'description' => 'required|string',
-            'skillLevels.*.effect_description' => 'required|string',
-            'skillLevels.*.effects.*.effect_status' => 'required|string|in:attack,defense,sharpness',
-            'skillLevels.*.effects.*.effect_type' => 'required|string|in:none,add,multiply',
+            'maxLevel' => 'required|integer|min:1|max:10',
+            'type' => 'required|string|in:weapon,armor',
         ];
 
-        // 効果値のルールをマージ
-        $rules = array_merge($rules, $effectValueRules);
+        // 各レベルのバリデーションルールを追加
+        for ($i = 1; $i <= $this->maxLevel; $i++) {
+            $rules["levels.{$i}.description"] = 'required|string';
+        }
 
         $this->validate($rules);
 
-        // スキルの更新
-        $this->skill->update([
-            'name' => $this->name,
-            'description' => $this->description,
-        ]);
-
-        // 削除するスキルレベル
-        if (!empty($this->deletedLevelIds)) {
-            WeaponSkillLevel::whereIn('id', $this->deletedLevelIds)->delete();
-        }
-
-        // 削除する効果
-        if (!empty($this->deletedEffectIds)) {
-            SkillLevelEffect::whereIn('id', $this->deletedEffectIds)->delete();
-        }
-
-        // スキルレベルと効果の保存または更新
-        foreach ($this->skillLevels as $levelData) {
-            if (empty($levelData['id'])) {
-                // 新規レベル
-                $skillLevel = WeaponSkillLevel::create([
-                    'weapon_skill_id' => $this->skill->id,
-                    'level' => $levelData['level'],
-                    'effect_description' => $levelData['effect_description'],
+        try {
+            DB::transaction(function () {
+                // スキルの更新
+                $this->skill->update([
+                    'name' => $this->name,
+                    'description' => $this->description,
+                    'max_level' => $this->maxLevel,
+                    'type' => $this->type,
                 ]);
 
-                // 効果の保存
-                foreach ($levelData['effects'] as $effectData) {
-                    SkillLevelEffect::create([
-                        'weapon_skill_level_id' => $skillLevel->id,
-                        'effect_status' => $effectData['effect_status'],
-                        'effect_value' => $effectData['effect_value'],
-                        'effect_type' => $effectData['effect_type'],
-                    ]);
+                // 既存のレベル数を取得
+                $existingLevelsCount = $this->skill->levels()->count();
+
+                // スキルレベルの更新または作成
+                foreach ($this->levels as $level => $data) {
+                    $this->skill->levels()->updateOrCreate(['level' => $level], ['description' => $data['description']]);
                 }
-            } else {
-                // 既存レベルの更新
-                $skillLevel = WeaponSkillLevel::findOrFail($levelData['id']);
-                $skillLevel->update([
-                    'level' => $levelData['level'],
-                    'effect_description' => $levelData['effect_description'],
-                ]);
 
-                // 効果の保存または更新
-                foreach ($levelData['effects'] as $effectData) {
-                    if (empty($effectData['id'])) {
-                        // 新規効果
-                        SkillLevelEffect::create([
-                            'weapon_skill_level_id' => $skillLevel->id,
-                            'effect_status' => $effectData['effect_status'],
-                            'effect_value' => $effectData['effect_value'],
-                            'effect_type' => $effectData['effect_type'],
-                        ]);
-                    } else {
-                        // 既存効果の更新
-                        SkillLevelEffect::where('id', $effectData['id'])->update([
-                            'effect_status' => $effectData['effect_status'],
-                            'effect_value' => $effectData['effect_value'],
-                            'effect_type' => $effectData['effect_type'],
-                        ]);
-                    }
+                // 不要になったレベルを削除 (最大レベル縮小時)
+                if ($existingLevelsCount > $this->maxLevel) {
+                    $this->skill->levels()->where('level', '>', $this->maxLevel)->delete();
                 }
-            }
+            });
+
+            session()->flash('message', 'スキルが正常に更新されました。');
+        } catch (\Exception $e) {
+            // エラーメッセージを表示
+            session()->flash('error', 'スキルの更新に失敗しました。' . $e->getMessage());
+            // エラーログに詳細を記録
+            \Log::error('スキル更新エラー:', [
+                'skill_id' => $this->skill->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
-
-        session()->flash('message', 'スキルが正常に更新されました。');
-
-        // スキル詳細ページへリダイレクト
-        $this->redirect(route('admin.skills.show', $this->skill), navigate: true);
-    }
-
-    public function mount(WeaponSkill $skill)
-    {
-        $this->skill = $skill;
-        $this->name = $skill->name;
-        $this->description = $skill->description;
-        $this->deletedLevelIds = [];
-        $this->deletedEffectIds = [];
-
-        // スキルレベルの読み込み
-        $this->skillLevels = [];
-        foreach ($skill->levels->sortBy('level') as $level) {
-            $this->skillLevels[] = [
-                'id' => $level->id,
-                'level' => $level->level,
-                'effect_description' => $level->effect_description,
-                'effects' => $level->effects
-                    ->map(function ($effect) {
-                        return [
-                            'id' => $effect->id,
-                            'effect_status' => $effect->effect_status,
-                            'effect_value' => $effect->effect_value,
-                            'effect_type' => $effect->effect_type,
-                        ];
-                    })
-                    ->toArray(),
-            ];
-        }
-
-        // スキルレベルがない場合は空のレベルを追加
-        if (empty($this->skillLevels)) {
-            $this->addSkillLevel();
-        }
-    }
-
-    public function with(): array
-    {
-        return [
-            'effectStatuses' => $this->getEffectStatuses(),
-            'effectTypes' => $this->getEffectTypes(),
-        ];
-    }
-
-    private function getEffectStatuses(): array
-    {
-        return [
-            'attack' => '攻撃力',
-            'defense' => '防御力',
-            'sharpness' => '切れ味',
-        ];
-    }
-
-    private function getEffectTypes(): array
-    {
-        return [
-            'none' => 'なし',
-            'add' => '加算',
-            'multiply' => '乗算(%)',
-        ];
     }
 }; ?>
 
 <div>
-    <div class="bg-gray-800 shadow-sm rounded-lg p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">スキル編集: {{ $skill->name }}</h1>
-            <div class="flex space-x-2">
-                <a href="{{ route('admin.skills.show', $skill) }}" wire:navigate
-                    class="px-4 py-2 bg-indigo-500 text-white rounded-md shadow-sm hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    詳細に戻る
-                </a>
-                <a href="{{ route('admin.skills.index') }}" wire:navigate
-                    class="px-4 py-2 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    スキル一覧に戻る
-                </a>
+    @if (session()->has('message'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">成功！</strong>
+            <span class="block sm:inline">{{ session('message') }}</span>
+        </div>
+    @endif
+    <div class="rounded-lg border-gray-700 border p-8 bg-gray-850 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">スキル更新</h2>
+
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="name" class="block text-gray-300 text-lg font-medium mb-2">
+                        スキル名
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" wire:model="name" autocomplete="name"
+                        class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3"
+                        placeholder="スキル名を入力してください" />
+                    @if ($errors->has('name'))
+                        <span class="text-red-500 text-sm mt-1">
+                            {{ $errors->first('name') }}
+                        </span>
+                    @endif
+                </div>
+                <div>
+                    <label for="description" class="block text-gray-300 text-lg font-medium mb-2">
+                        スキル説明
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="description" wire:model="description" autocomplete="off"
+                        class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3"
+                        placeholder="スキルの効果について説明してください" />
+                    @if ($errors->has('description'))
+                        <span class="text-red-500 text-sm mt-1">
+                            {{ $errors->first('description') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label for="maxLevel" class="block text-gray-300 text-lg font-medium mb-2">
+                        最大レベル
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" id="maxLevel" wire:model.live="maxLevel" min="1" max="7"
+                        class="w-30 bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                    @if ($errors->has('maxLevel'))
+                        <span class="text-red-500 text-sm mt-1">
+                            {{ $errors->first('maxLevel') }}
+                        </span>
+                    @endif
+                </div>
+
+                <div>
+                    <label for="type" class="block text-gray-300 text-lg font-medium mb-2">
+                        スキルタイプ
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <select id="type" wire:model="type"
+                        class="w-30 md:w-50 bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
+                        @foreach (SkillTypes::cases() as $skillType)
+                            <option value="{{ $skillType->value }}">{{ $skillType->label() }}</option>
+                        @endforeach
+                    </select><br>
+                    @if ($errors->has('type'))
+                        <span class="text-red-500 text-sm mt-1">
+                            {{ $errors->first('type') }}
+                        </span>
+                    @endif
+                </div>
             </div>
         </div>
 
-        @if (session()->has('message'))
-            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
-                {{ session('message') }}
-            </div>
-        @endif
-
-        <form wire:submit="save" class="space-y-6">
-            <div class="grid grid-cols-1 gap-6">
-                {{-- 基本情報セクション --}}
-                <div class="bg-gray-700 p-4 rounded-md">
-                    <h2 class="text-lg font-semibold text-white mb-4">基本情報</h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {{-- スキル名 --}}
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-300 mb-1">スキル名 <span
-                                    class="text-red-600">*</span></label>
-                            <input type="text" id="name" wire:model="name" required
-                                class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
-                            @error('name')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        {{-- スキル説明 --}}
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-300 mb-1">スキル説明 <span
-                                    class="text-red-600">*</span></label>
-                            <textarea id="description" wire:model="description" rows="1" required
-                                class="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white"></textarea>
-                            @error('description')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+        <h2 class="text-2xl font-bold text-white my-6 border-b border-gray-700 py-2">スキルレベル</h2>
+        <div class="space-y-4">
+            @for ($i = 1; $i <= $maxLevel; $i++)
+                <div>
+                    <label for="description{{ $i }}" class="block text-gray-300 text-lg font-medium mb-2">
+                        レベル {{ $i }} 説明
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="description{{ $i }}"
+                        wire:model="levels.{{ $i }}.description"
+                        class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3"
+                        placeholder="レベル {{ $i }} のスキル効果について説明してください" />
+                    @error("levels.{$i}.description")
+                        <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                    @enderror
                 </div>
+            @endfor
 
-                {{-- スキルレベルセクション --}}
-                <div class="bg-gray-700 p-4 rounded-md">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-white">スキルレベル設定</h2>
-                        <button type="button" wire:click="addSkillLevel"
-                            class="px-3 py-1 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm">
-                            レベル追加
-                        </button>
-                    </div>
-
-                    <div class="space-y-4">
-                        @foreach ($skillLevels as $levelIndex => $level)
-                            <div x-data="{ open: {{ $levelIndex === 0 ? 'true' : 'false' }} }"
-                                class="border border-gray-600 rounded-md bg-gray-800 overflow-hidden">
-                                {{-- レベル情報ヘッダー --}}
-                                <div class="bg-gray-700 p-3 grid grid-cols-12 items-center">
-                                    <span
-                                        class="font-bold text-lg text-gray-300 col-span-1">Lv.{{ $level['level'] }}</span>
-
-                                    <div class="col-span-9">
-                                        <input type="text"
-                                            wire:model="skillLevels.{{ $levelIndex }}.effect_description"
-                                            placeholder="効果説明（例: 攻撃力が上昇する）"
-                                            class="px-3 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white w-full">
-                                        @error("skillLevels.{$levelIndex}.effect_description")
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-span-2 flex items-center justify-end space-x-2">
-                                        <button type="button" @click="open = !open"
-                                            class="px-2 py-1 bg-gray-500 text-white rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm">
-                                            <span x-show="!open">詳細を表示</span>
-                                            <span x-show="open">詳細を隠す</span>
-                                        </button>
-                                        <button type="button" wire:click="removeSkillLevel({{ $levelIndex }})"
-                                            @if (count($skillLevels) === 1) disabled @endif
-                                            class="px-2 py-1 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                                            削除
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {{-- 効果設定 (アコーディオンの中身) --}}
-                                <div x-show="open" x-transition:enter="transition ease-out duration-200"
-                                    x-transition:enter-start="opacity-0 transform scale-90"
-                                    x-transition:enter-end="opacity-100 transform scale-100"
-                                    x-transition:leave="transition ease-in duration-100"
-                                    x-transition:leave-start="opacity-100 transform scale-100"
-                                    x-transition:leave-end="opacity-0 transform scale-90" class="p-3 space-y-2">
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full divide-y divide-gray-700">
-                                            <thead class="bg-gray-700">
-                                                <tr>
-                                                    <th
-                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                        適用ステータス</th>
-                                                    <th
-                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                        効果タイプ</th>
-                                                    <th
-                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                        効果値</th>
-                                                    <th
-                                                        class="px-3 py-2 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                                        操作</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                                @foreach ($level['effects'] as $effectIndex => $effect)
-                                                    <tr>
-                                                        <td class="px-3 py-2 whitespace-nowrap">
-                                                            <select
-                                                                wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_status"
-                                                                class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
-                                                                @foreach ($effectStatuses as $value => $label)
-                                                                    <option value="{{ $value }}">
-                                                                        {{ $label }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_status")
-                                                                <p class="mt-1 text-xs text-red-600">{{ $message }}
-                                                                </p>
-                                                            @enderror
-                                                        </td>
-                                                        <td class="px-3 py-2 whitespace-nowrap">
-                                                            <select
-                                                                wire:model.live="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_type"
-                                                                class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
-                                                                @foreach ($effectTypes as $value => $label)
-                                                                    <option value="{{ $value }}">
-                                                                        {{ $label }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                            @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_type")
-                                                                <p class="mt-1 text-xs text-red-600">{{ $message }}
-                                                                </p>
-                                                            @enderror
-                                                        </td>
-                                                        <td class="px-3 py-2 whitespace-nowrap">
-                                                            <div>
-                                                                <input type="number"
-                                                                    wire:model="skillLevels.{{ $levelIndex }}.effects.{{ $effectIndex }}.effect_value"
-                                                                    step="{{ $skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply' ? '0.01' : '1' }}"
-                                                                    min="0"
-                                                                    class="w-full px-2 py-1 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-700 text-white">
-
-                                                                @if ($skillLevels[$levelIndex]['effects'][$effectIndex]['effect_type'] === 'multiply')
-                                                                    <p class="text-xs text-gray-400">例: 1.05 = 5%増加</p>
-                                                                @endif
-
-                                                                @error("skillLevels.{$levelIndex}.effects.{$effectIndex}.effect_value")
-                                                                    <p class="text-xs text-red-600">{{ $message }}</p>
-                                                                @enderror
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-3 py-2 whitespace-nowrap">
-                                                            <button type="button"
-                                                                wire:click="removeEffect({{ $levelIndex }}, {{ $effectIndex }})"
-                                                                @if (count($level['effects']) === 1) disabled @endif
-                                                                class="px-2 py-1 bg-red-600 text-white rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                                                                削除
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {{-- 効果追加ボタン --}}
-                                    <div class="flex justify-end mt-2">
-                                        <button type="button" wire:click="addEffect({{ $levelIndex }})"
-                                            class="px-3 py-1 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm">
-                                            効果を追加
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit"
-                    class="px-6 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    変更を保存
+            <div class="grid grid-cols-3 gap-6">
+                <a href="{{ route('admin.skills.index') }}"
+                    class="px-4 py-2 bg-gray-500 text-white text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                    スキル一覧へ
+                </a>
+                <button wire:click.prevent="editSkill"
+                    class="px-4 py-2 bg-blue-500 text-white text-center rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    スキル更新
+                </button>
+                <button wire:click="$emit('openModal', 'admin.skills.delete', {{ json_encode(['skill' => $skill]) }})"
+                    class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    スキル削除
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 </div>

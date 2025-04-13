@@ -30,18 +30,12 @@ Route::prefix('admin')->group(function () {
 
         // 武器管理
         Route::prefix('weapons')->name('admin.weapons.')->group(function () {
-            Volt::route('/', 'admin.weapons.index')
-                ->name('index');
-            Volt::route('/create', 'admin.weapons.create')
-                ->name('create');
-            Volt::route('/edit/{weapon}', 'admin.weapons.edit')
-                ->name('edit');
-            Volt::route('/show/{weapon}', 'admin.weapons.show')
-                ->name('show');
-            Volt::route('/delete/{weapon}', 'admin.weapons.delete')
-                ->name('delete');
-            Volt::route('/confirm-delete/{weapon}', 'admin.weapons.confirm-delete')
-                ->name('confirm-delete');
+            Volt::route('/', 'admin.weapons.index')->name('index');
+            Volt::route('/create', 'admin.weapons.create')->name('create');
+            Volt::route('/edit/{weapon}', 'admin.weapons.edit')->name('edit');
+            Volt::route('/show/{weapon}', 'admin.weapons.show')->name('show');
+            Volt::route('/delete/{weapon}', 'admin.weapons.delete')->name('delete');
+            Volt::route('/confirm-delete/{weapon}', 'admin.weapons.confirm-delete')->name('confirm-delete');
         });
 
         // ユーザー管理
@@ -62,16 +56,11 @@ Route::prefix('admin')->group(function () {
 
         // スキル管理
         Route::prefix('skills')->name('admin.skills.')->group(function () {
-            Volt::route('/', 'admin.skills.index')
-                ->name('index');
-            Volt::route('/create', 'admin.skills.create')
-                ->name('create');
-            Volt::route('/edit/{skill}', 'admin.skills.edit')
-                ->name('edit');
-            Volt::route('/show/{skill}', 'admin.skills.show')
-                ->name('show');
-            Volt::route('/delete/{skill}', 'admin.skills.delete')
-                ->name('delete');
+            Volt::route('/', 'admin.skills.index')->name('index');
+            Volt::route('/create', 'admin.skills.create')->name('create');
+            Volt::route('/edit/{skill}', 'admin.skills.edit')->name('edit');
+            Volt::route('/show/{skill}', 'admin.skills.show')->name('show');
+            Volt::route('/delete/{skill}', 'admin.skills.delete')->name('delete');
         });
     });
 });

@@ -1,4 +1,4 @@
-<footer class="bg-white shadow-sm dark:bg-gray-800 mt-auto">
+<footer class="shadow-sm bg-gray-800 mt-auto">
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
             <div class="flex items-center space-x-4">

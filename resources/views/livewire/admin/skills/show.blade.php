@@ -8,12 +8,6 @@ use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
     public Skill $skill;
-
-    public function mount(Skill $skill): void
-    {
-        // 初期値の設定
-        $this->skill = $skill;
-    }
 }; ?>
 
 <div>
@@ -29,7 +23,6 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <p class="w-full text-white">
                         {{ $skill->name }}
                     </p>
-
                 </div>
                 <div>
                     <p class="block text-gray-300 text-lg font-medium mb-2" for="description">

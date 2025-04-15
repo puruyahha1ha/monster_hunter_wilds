@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\ElementTypes;
+use App\Enums\WeaponTypes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Weapon extends Model
 {
@@ -19,14 +21,13 @@ class Weapon extends Model
     ];
 
     protected $casts = [
+        'type' => WeaponTypes::class,
         'element' => ElementTypes::class,
     ];
 
-    public function skills()
+    public function skillLevels()
     {
-        return $this->belongsToMany(Skill::class, 'weapon_skill')
-            ->withPivot('level')
-            ->withTimestamps();
+        return $this->belongsToMany(SkillLevel::class, 'weapon_skill_level');
     }
 
     public function slots()

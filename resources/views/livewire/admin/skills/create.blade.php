@@ -127,7 +127,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         スキル名
                         <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="name" wire:model="name" autocomplete="name"
+                    <input type="text" id="name" wire:model="name"
                         class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3"
                         placeholder="スキル名を入力してください" />
                     @if ($errors->has('name'))

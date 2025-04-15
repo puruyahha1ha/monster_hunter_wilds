@@ -1,235 +1,205 @@
 <?php
 
 use App\Models\Weapon;
-use App\Models\WeaponSkill;
+use App\Enums\WeaponTypes;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Computed;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
     use WithPagination;
 
+    public int $perPage = 10;
     public string $search = '';
-    public string $weaponType = '';
-    public string $skillFilter = '';
+    public string $sortField = 'id';
+    public string $sortDirection = 'asc';
+    public bool $showDeleteModal = false;
+    public ?int $deleteWeaponId = null;
 
-    public function updatingSearch()
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }
 
-    public function updatingWeaponType()
+    #[Computed]
+    public function weapons()
     {
-        $this->resetPage();
+        return Weapon::where('name', 'like', '%' . $this->search . '%')
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
     }
 
-    public function updatingSkillFilter()
+    public function sortBy($field): void
     {
-        $this->resetPage();
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
     }
 
-    public function placeholder()
+    public function confirmDelete(int $skillId): void
     {
-        return <<<'HTML'
-        <div class="flex items-center justify-center h-56">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-        </div>
-        HTML;
+        $this->deleteWeaponId = $skillId;
+        $this->showDeleteModal = true;
     }
 
-    public function with(): array
+    public function cancelDelete(): void
     {
-        $query = Weapon::with(['skills']);
+        $this->deleteWeaponId = null;
+        $this->showDeleteModal = false;
+    }
 
-        if (!empty($this->search)) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+    public function deleteWeapon(): void
+    {
+        if ($this->deleteWeaponId) {
+            try {
+                $skill = Weapon::findOrFail($this->deleteWeaponId);
+                $skillName = $skill->name;
+                $skill->delete();
+
+                session()->flash('message', "武器「{$skillName}」を削除しました。");
+            } catch (\Exception $e) {
+                session()->flash('error', "削除中にエラーが発生しました: {$e->getMessage()}");
+            }
         }
 
-        if (!empty($this->weaponType)) {
-            $query->where('weapon_type', $this->weaponType);
-        }
-
-        if (!empty($this->skillFilter)) {
-            $query->whereHas('skills', function ($q) {
-                $q->where('weapon_skills.id', $this->skillFilter);
-            });
-        }
-
-        return [
-            'weapons' => $query->orderBy('id', 'desc')->paginate(10),
-            'weaponTypes' => Weapon::getWeaponTypes(),
-            'weaponSkills' => WeaponSkill::orderBy('name')->get(),
-        ];
+        $this->showDeleteModal = false;
+        $this->deleteWeaponId = null;
     }
 }; ?>
 
 <div>
-    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 md:mb-0">武器管理</h1>
+    {{-- 検索 --}}
+    <div class="mb-4">
+        <input type="text" wire:model.live.debounce.500ms="search"
+            class="px-4 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="武器名で検索" />
+    </div>
+    {{-- 武器一覧 --}}
+    <div class="border border-white rounded-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-white">武器一覧</h1>
             <a href="{{ route('admin.weapons.create') }}" wire:navigate
-                class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                新規武器追加
+                class="px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                武器追加
             </a>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
-            <div class="w-full md:w-1/3">
-                <label for="search"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">武器名検索</label>
-                <input type="text" id="search" wire:model.live.debounce.300ms="search"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    placeholder="武器名を入力...">
+        @if (session()->has('message'))
+            <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
+                {{ session('message') }}
             </div>
-            <div class="w-full md:w-1/3">
-                <label for="weaponType"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">武器種別</label>
-                <select id="weaponType" wire:model.live="weaponType"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option value="">すべて</option>
-                    @foreach ($weaponTypes as $type)
-                        <option value="{{ $type }}">{{ $type }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="w-full md:w-1/3">
-                <label for="skillFilter"
-                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">スキルで絞り込み</label>
-                <select id="skillFilter" wire:model.live="skillFilter"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option value="">すべて</option>
-                    @foreach ($weaponSkills as $skill)
-                        <option value="{{ $skill->id }}">{{ $skill->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
+        @endif
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        ID
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        武器名
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        武器種
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        レアリティ
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        スロット
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        攻撃力
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        会心率
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        防御力ボーナス
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        属性
+                    </th>
+                    <th scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                        操作
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @forelse ($this->weapons() as $weapon)
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            ID
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            画像
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            武器名
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            武器種別
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            攻撃力
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            属性
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            スキル
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            レア度
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            操作
-                        </th>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->id }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->name }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->type->label() }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->rarity }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
+                            @foreach ($weapon->slots as $slot)
+                                {{ $slot->size }}
+                            @endforeach
+                        </td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->attack }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->critical_rate }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->defense }}</td>
+                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
+                            {{ $weapon->element->label() }}
+                            {{ $weapon->element_attack !== 0 ? $weapon->element_attack : '' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{{ route('admin.weapons.show', $weapon->id) }}" wire:navigate
+                                class="text-blue-600 hover:text-blue-900">詳細</a>
+                            <a href="{{ route('admin.weapons.edit', $weapon->id) }}" wire:navigate
+                                class="text-yellow-600 hover:text-yellow-900 ml-4">編集</a>
+                            <button wire:click="confirmDelete({{ $weapon->id }})"
+                                class="text-red-600 hover:text-red-900 ml-4">削除</button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                    @forelse($weapons as $weapon)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ $weapon->id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if ($weapon->image_path)
-                                    <img src="{{ asset('storage/' . $weapon->image_path) }}" alt="{{ $weapon->name }}"
-                                        class="h-10 w-10 object-cover">
-                                @else
-                                    <div
-                                        class="h-10 w-10 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                                        <flux:icon.no-symbol class="h-6 w-6 text-gray-400" />
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                {{ $weapon->name }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ $weapon->weapon_type }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                {{ $weapon->attack }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                @if ($weapon->element_type != 'なし')
-                                    <span class="inline-flex items-center">
-                                        {{ $weapon->element_type }} {{ $weapon->element_value }}
-                                    </span>
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                <div class="flex flex-wrap gap-1">
-                                    @forelse($weapon->skills as $skill)
-                                        <span
-                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                            {{ $skill->name }} Lv.{{ $skill->pivot->level }}
-                                        </span>
-                                    @empty
-                                        -
-                                    @endforelse
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                    ★{{ $weapon->rarity }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex justify-end space-x-2">
-                                    <a href="{{ route('admin.weapons.show', $weapon) }}" wire:navigate
-                                        class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                        詳細
-                                    </a>
-                                    <a href="{{ route('admin.weapons.edit', $weapon) }}" wire:navigate
-                                        class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300">
-                                        編集
-                                    </a>
-                                    <a href="{{ route('admin.weapons.delete', $weapon) }}" wire:navigate
-                                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
-                                        削除
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                武器が見つかりませんでした
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                            武器が見つかりませんでした
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
 
         <div class="mt-4">
-            {{ $weapons->links() }}
+            {{ $this->weapons()->links() }}
         </div>
     </div>
+
+    @if ($showDeleteModal)
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+                <h3 class="text-xl font-bold text-white mb-4">削除の確認</h3>
+                <p class="text-gray-300 mb-6">
+                    この武器を削除してもよろしいですか？<br>
+                    この操作は取り消せません。
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button wire:click="cancelDelete"
+                        class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                        キャンセル
+                    </button>
+                    <button wire:click="deleteWeapon" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                        削除する
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

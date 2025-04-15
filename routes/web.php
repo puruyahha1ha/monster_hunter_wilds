@@ -25,8 +25,16 @@ Route::prefix('admin')->group(function () {
         Route::get('/', function () {
             return redirect()->route('admin.dashboard');
         })->name('admin.home');
-        Route::view('/dashboard', 'admin.dashboard')
-            ->name('admin.dashboard');
+        Volt::route('/dashboard', 'admin.dashboard')->name('admin.dashboard');
+
+        // スキル管理
+        Route::prefix('skills')->name('admin.skills.')->group(function () {
+            Volt::route('/', 'admin.skills.index')->name('index');
+            Volt::route('/create', 'admin.skills.create')->name('create');
+            Volt::route('/edit/{skill}', 'admin.skills.edit')->name('edit');
+            Volt::route('/show/{skill}', 'admin.skills.show')->name('show');
+            Volt::route('/delete/{skill}', 'admin.skills.delete')->name('delete');
+        });
 
         // 武器管理
         Route::prefix('weapons')->name('admin.weapons.')->group(function () {
@@ -35,7 +43,6 @@ Route::prefix('admin')->group(function () {
             Volt::route('/edit/{weapon}', 'admin.weapons.edit')->name('edit');
             Volt::route('/show/{weapon}', 'admin.weapons.show')->name('show');
             Volt::route('/delete/{weapon}', 'admin.weapons.delete')->name('delete');
-            Volt::route('/confirm-delete/{weapon}', 'admin.weapons.confirm-delete')->name('confirm-delete');
         });
 
         // ユーザー管理
@@ -52,15 +59,6 @@ Route::prefix('admin')->group(function () {
                 ->name('delete');
             Volt::route('/confirm-delete/{user}', 'admin.users.confirm-delete')
                 ->name('confirm-delete');
-        });
-
-        // スキル管理
-        Route::prefix('skills')->name('admin.skills.')->group(function () {
-            Volt::route('/', 'admin.skills.index')->name('index');
-            Volt::route('/create', 'admin.skills.create')->name('create');
-            Volt::route('/edit/{skill}', 'admin.skills.edit')->name('edit');
-            Volt::route('/show/{skill}', 'admin.skills.show')->name('show');
-            Volt::route('/delete/{skill}', 'admin.skills.delete')->name('delete');
         });
     });
 });

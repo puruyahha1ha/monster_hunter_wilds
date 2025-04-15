@@ -11,6 +11,7 @@ use Livewire\Volt\Component;
 use Illuminate\Support\Facades\DB;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
+    public Weapon $weapon;
     #[Validate('required|string', as: '武器名')]
     public string $name = '';
     #[Validate('required|string|in:great_sword,long_sword,sword_and_shield,dual_blades,hammer,hunting_horn,lance,gunlance,switch_axe,charge_blade,insect_glaive,light_bowgun,heavy_bowgun,bow', as: '武器種')]
@@ -56,6 +57,35 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             'position' => 3,
         ],
     ];
+
+    public function mount(Weapon $weapon): void
+    {
+        // 初期値の設定
+        $this->weapon = $weapon;
+        $this->name = $weapon->name;
+        $this->type = $weapon->type->value;
+        $this->rarity = $weapon->rarity;
+        $this->attack = $weapon->attack;
+        $this->critical_rate = $weapon->critical_rate;
+        $this->element = $weapon->element->value;
+        $this->element_attack = $weapon->element_attack;
+        $this->defense = $weapon->defense;
+
+        foreach ($weapon->slots as $slot) {
+            if (isset($this->slots[$slot['position']])) {
+                $this->slots[$slot['position']]['size'] = $slot['size'];
+            }
+        }
+
+        foreach ($weapon->skillLevels as $skillLevel) {
+            $this->showLevels[] = [
+                'id' => $skillLevel->id,
+                'name' => $skillLevel->skill->name,
+                'level' => $skillLevel->level,
+            ];
+            $this->relatedLevels[] = $skillLevel->id;
+        }
+    }
 
     public string $search = '';
 
@@ -115,16 +145,23 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             // 配列のキーを振り直し
             $this->showLevels = array_values($this->showLevels);
         }
+
+        // スキルレベルのIDを削除
+        if (isset($this->relatedLevels[$index])) {
+            unset($this->relatedLevels[$index]);
+            // 配列のキーを振り直し
+            $this->relatedLevels = array_values($this->relatedLevels);
+        }
     }
 
-    public function createWeapon(): void
+    public function updateWeapon(): void
     {
         $this->validate();
 
         try {
             DB::transaction(function () {
-                // 武器の登録
-                $weapon = Weapon::create([
+                // 武器の編集
+                $this->weapon->update([
                     'name' => $this->name,
                     'type' => $this->type,
                     'rarity' => $this->rarity,
@@ -135,28 +172,29 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     'defense' => $this->defense,
                 ]);
 
-                // 武器スロットの登録
+                // 武器スロットの更新
+                $this->weapon->slots()->delete();
+                // スロットの登録
                 foreach ($this->slots as $slot) {
-                    $weapon->slots()->create([
+                    $this->weapon->slots()->create([
                         'size' => $slot['size'],
                         'position' => $slot['position'],
                     ]);
                 }
 
-                // 武器スキルの登録
+                // 武器スキルの更新
+                $this->weapon->skillLevels()->detach();
+                // スキルレベルの登録
                 if (!empty($this->relatedLevels)) {
-                    $weapon->skillLevels()->sync($this->relatedLevels);
+                    $this->weapon->skillLevels()->sync($this->relatedLevels);
                 }
             });
 
-            // 入力値をリセット
-            $this->reset(['name', 'type', 'rarity', 'attack', 'critical_rate', 'element', 'element_attack', 'defense', 'slots', 'showLevels', 'relatedLevels']);
-
             // 成功時の処理
-            session()->flash('message', '武器が正常に登録されました。');
+            session()->flash('message', '武器が正常に更新されました。');
         } catch (\Exception $e) {
             // エラー時の処理
-            session()->flash('error', '武器の登録に失敗しました。' . $e->getMessage());
+            session()->flash('error', '武器の更新に失敗しました。' . $e->getMessage());
         }
     }
 
@@ -189,14 +227,9 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
-    @if ($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">エラーが発生しました。入力内容を確認してください。</span>
-        </div>
-    @endif
 
     <div class="rounded-lg border-gray-700 border p-8 bg-gray-850 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">武器登録</h2>
+        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">武器更新</h2>
 
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -449,9 +482,9 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         class="px-4 py-2 bg-gray-500 text-white text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                         武器一覧へ
                     </a>
-                    <button wire:click.prevent="createWeapon"
+                    <button wire:click.prevent="updateWeapon"
                         class="px-4 py-2 bg-blue-500 text-white text-center rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        武器登録
+                        武器更新
                     </button>
                 </div>
             </div>

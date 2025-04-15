@@ -24,4 +24,12 @@ class SkillLevel extends Model
     {
         return $this->belongsTo(Skill::class);
     }
+
+    /**
+     * 武器リレーション
+     */
+    public function weapons()
+    {
+        return $this->belongsToMany(Weapon::class, 'weapon_skill_level');
+    }
 }

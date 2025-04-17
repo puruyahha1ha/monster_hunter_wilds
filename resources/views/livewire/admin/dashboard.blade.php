@@ -10,7 +10,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     public int $skillCount;
     public int $userCount;
     public int $weaponCount;
-    
+
     public function mount()
     {
         $this->skillCount = Skill::count();
@@ -26,7 +26,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-emerald-900/30 rounded-lg p-6">
+        <a href="{{ route('admin.skills.index') }}" class="bg-emerald-900/30 rounded-lg p-6 hover:bg-emerald-900">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-emerald-200 text-sm font-medium">スキル管理</p>
@@ -38,14 +38,9 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <flux:icon.cog class="h-6 w-6 text-emerald-200" />
                 </div>
             </div>
-            <a href="{{ route('admin.skills.index') }}"
-                class="mt-4 text-sm text-emerald-400 font-medium flex items-center">
-                スキル管理へ移動
-                <flux:icon.chevron-right class="h-4 w-4 ml-1" />
-            </a>
-        </div>
+        </a>
 
-        <div class="bg-indigo-900/30 rounded-lg p-6">
+        <a href="{{ route('admin.weapons.index') }}" class="bg-indigo-900/30 rounded-lg p-6 hover:bg-indigo-900">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-indigo-200 text-sm font-medium">武器管理</p>
@@ -57,14 +52,10 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <flux:icon.swords class="h-6 w-6 text-indigo-200" />
                 </div>
             </div>
-            <a href="{{ route('admin.weapons.index') }}"
-                class="mt-4 text-sm text-indigo-400 font-medium flex items-center">
-                武器管理へ移動
-                <flux:icon.chevron-right class="h-4 w-4 ml-1" />
-            </a>
-        </div>
 
-        <div class="bg-emerald-900/30 rounded-lg p-6">
+        </a>
+
+        <a href="{{ route('admin.users.index') }}" class="bg-emerald-900/30 rounded-lg p-6 hover:bg-emerald-900">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-emerald-600 dark:text-emerald-400 text-sm font-medium">ユーザー管理</p>
@@ -76,11 +67,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <flux:icon.users class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
             </div>
-            <a href="{{ route('admin.users.index') }}"
-                class="mt-4 text-sm text-emerald-600 dark:text-emerald-400 font-medium flex items-center">
-                ユーザー管理へ移動
-                <flux:icon.chevron-right class="h-4 w-4 ml-1" />
-            </a>
-        </div>
+        </a>
     </div>
+</div>
 </div>

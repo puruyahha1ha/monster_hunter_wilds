@@ -94,65 +94,61 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 {{ session('message') }}
             </div>
         @endif
-
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead>
-                <tr>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        ID
-                    </th>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        スキル名
-                    </th>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        スキル説明
-                    </th>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        最大レベル
-                    </th>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        スキルタイプ
-                    </th>
-                    <th scope="col"
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                        操作
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse ($this->skills() as $skill)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
                     <tr>
-                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->id }}</td>
-                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->name }}</td>
-                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->description }}</td>
-                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->max_level }}</td>
-                        <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
-                            {{ $skill->type->label() }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <a href="{{ route('admin.skills.show', $skill->id) }}" wire:navigate
-                                class="text-blue-600 hover:text-blue-900">詳細</a>
-                            <a href="{{ route('admin.skills.edit', $skill->id) }}" wire:navigate
-                                class="text-yellow-600 hover:text-yellow-900 ml-4">編集</a>
-                            <button wire:click="confirmDelete({{ $skill->id }})"
-                                class="text-red-600 hover:text-red-900 ml-4">削除</button>
-                        </td>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            操作
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            スキル名
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            スキル説明
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            最大レベル
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            スキルタイプ
+                        </th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-400">
-                            スキルが見つかりませんでした
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($this->skills() as $skill)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a href="{{ route('admin.skills.show', $skill->id) }}" wire:navigate
+                                    class="text-blue-600 hover:text-blue-900">詳細</a>
+                                <a href="{{ route('admin.skills.edit', $skill->id) }}" wire:navigate
+                                    class="text-yellow-600 hover:text-yellow-900 ml-4">編集</a>
+                                <button wire:click="confirmDelete({{ $skill->id }})"
+                                    class="text-red-600 hover:text-red-900 ml-4">削除</button>
+                            </td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->name }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->description }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $skill->max_level }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
+                                {{ $skill->type->label() }}
+                            </td>
 
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                                スキルが見つかりませんでした
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div class="mt-4">
             {{ $this->skills()->links() }}
         </div>

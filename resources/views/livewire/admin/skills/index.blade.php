@@ -74,10 +74,18 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
 <div>
     {{-- 検索 --}}
-    <div class="mb-4">
+    <div class="mb-4 flex justify-between">
         <input type="text" wire:model.live.debounce.500ms="search"
             class="px-4 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="スキル名または説明で検索" />
+        <div class="flex space-x-8">
+            <a href="{{ route('admin.skills.groups.index') }}" class="text-blue-600 hover:text-blue-900" wire:navigate>
+                グループスキル一覧
+            </a>
+            <a href="{{ route('admin.skills.series.index') }}" class="text-blue-600 hover:text-blue-900" wire:navigate>
+                シリーズスキル一覧
+            </a>
+        </div>
     </div>
     {{-- スキル一覧 --}}
     <div class="border border-white rounded-lg p-6">
@@ -150,7 +158,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             </table>
         </div>
         <div class="mt-4">
-            {{ $this->skills()->links() }}
+            {{ $this->skills()->links(data: ['scrollTo' => false]) }}
         </div>
     </div>
 

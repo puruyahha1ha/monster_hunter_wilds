@@ -99,7 +99,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <tr>
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
-                            操作
+                            ID
                         </th>
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
@@ -133,20 +133,16 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                             属性
                         </th>
-
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
+                            操作
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @forelse ($this->weapons() as $weapon)
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('admin.weapons.show', $weapon->id) }}" wire:navigate
-                                    class="text-blue-600 hover:text-blue-900">詳細</a>
-                                <a href="{{ route('admin.weapons.edit', $weapon->id) }}" wire:navigate
-                                    class="text-yellow-600 hover:text-yellow-900 ml-4">編集</a>
-                                <button wire:click="confirmDelete({{ $weapon->id }})"
-                                    class="text-red-600 hover:text-red-900 ml-4">削除</button>
-                            </td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->id }}</td>
                             <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->name }}</td>
                             <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->type->label() }}</td>
                             <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $weapon->rarity }}</td>
@@ -161,6 +157,14 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
                                 {{ $weapon->element->label() }}
                                 {{ $weapon->element_attack !== 0 ? $weapon->element_attack : '' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <a href="{{ route('admin.weapons.show', $weapon->id) }}" wire:navigate
+                                    class="text-blue-600 hover:text-blue-900">詳細</a>
+                                <a href="{{ route('admin.weapons.edit', $weapon->id) }}" wire:navigate
+                                    class="text-yellow-600 hover:text-yellow-900 ml-4">編集</a>
+                                <button wire:click="confirmDelete({{ $weapon->id }})"
+                                    class="text-red-600 hover:text-red-900 ml-4">削除</button>
                             </td>
                         </tr>
                     @empty

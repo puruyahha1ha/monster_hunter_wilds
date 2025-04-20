@@ -1,8 +1,7 @@
 <?php
 
-use App\Enums\ElementTypes;
-use App\Enums\WeaponTypes;
-use App\Models\Weapon;
+use App\Enums\ArmorTypes;
+use App\Models\Armor;
 use App\Models\SkillLevel;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -11,7 +10,7 @@ use Livewire\Volt\Component;
 use Illuminate\Support\Facades\DB;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
-    #[Validate('required|string', as: '武器名')]
+    #[Validate('required|string', as: '防具名')]
     public string $name = '';
     #[Validate('required|string|in:great_sword,long_sword,sword_and_shield,dual_blades,hammer,hunting_horn,lance,gunlance,switch_axe,charge_blade,insect_glaive,light_bowgun,heavy_bowgun,bow', as: '武器種')]
     public string $type = WeaponTypes::GREAT_SWORD->value;
@@ -387,7 +386,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     {{-- スキル検索 --}}
                     <input type="text" id="search" wire:model.live.debounce.500ms="search"
                         class="px-4 py-2 w-full md:w-1/2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="スキル名または説明で検索" />
+                        placeholder="武器スキル名または説明で検索" />
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 
 class Series extends Model
 {
@@ -38,5 +40,15 @@ class Series extends Model
             'name' => 'string',
             'description' => 'string',
         ];
+    }
+
+    /**
+     * Get the skills for the series.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function skills(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'series_skill', 'series_id', 'skill_id');
     }
 }

@@ -19,6 +19,11 @@
                     wire:current="bg-indigo-900 text-indigo-300">
                     武器管理
                 </a>
+                <a href="{{ route('admin.armors.index') }}" wire:navigate
+                    class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                    wire:current="bg-indigo-900 text-indigo-300">
+                    防具管理
+                </a>
                 <a href="{{ route('admin.skills.index') }}" wire:navigate
                     class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
                     wire:current="bg-indigo-900 text-indigo-300">
@@ -63,11 +68,9 @@
                             {{ auth()->guard('admin')->user() ? auth()->guard('admin')->user()->name : 'Admin' }}
                         </span>
                         <div class="border-t border-gray-600"></div>
-                        <a href="#"
-                            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
                             role="menuitem" tabindex="-1" id="user-menu-item-0">プロフィール</a>
-                        <a href="#"
-                            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
                             role="menuitem" tabindex="-1" id="user-menu-item-1">設定</a>
                         <div class="border-t border-gray-600"></div>
                         <button wire:click="logout"
@@ -89,16 +92,15 @@
         </div>
 
         {{-- サイドナビゲーション --}}
-        <div class="fixed inset-y-0 right-0 w-full max-w-xs bg-gray-800 overflow-y-auto"
-            x-show="mobileMenuOpen" x-transition:enter="transition ease-in-out duration-300 transform"
+        <div class="fixed inset-y-0 right-0 w-full max-w-xs bg-gray-800 overflow-y-auto" x-show="mobileMenuOpen"
+            x-transition:enter="transition ease-in-out duration-300 transform"
             x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
             x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0"
             x-transition:leave-end="translate-x-full">
 
             <div class="p-4 flex items-center justify-between border-b border-gray-700">
                 <h2 class="text-lg font-medium text-white">メニュー</h2>
-                <button type="button" @click="mobileMenuOpen = false"
-                    class="text-gray-400 hover:text-gray-300">
+                <button type="button" @click="mobileMenuOpen = false" class="text-gray-400 hover:text-gray-300">
                     <span class="sr-only">メニューを閉じる</span>
                     <flux:icon.x-mark class="h-6 w-6" />
                 </button>
@@ -136,8 +138,14 @@
                     <a href="{{ route('admin.weapons.index') }}" wire:navigate
                         wire:current="bg-indigo-900/30 text-indigo-300"
                         class="flex items-center px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">
-                        <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
+                        <flux:icon.swords class="h-5 w-5 mr-3 text-gray-400" />
                         武器管理
+                    </a>
+                    <a href="{{ route('admin.armors.index') }}" wire:navigate
+                        wire:current="bg-indigo-900/30 text-indigo-300"
+                        class="flex items-center px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">
+                        <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
+                        防具管理
                     </a>
                     <a href="{{ route('admin.skills.index') }}" wire:navigate
                         wire:current="bg-indigo-900/30 text-indigo-300"
@@ -156,15 +164,13 @@
                 <div class="py-4 px-4">
                     <div class="flex items-center">
                         <flux:icon.cog-6-tooth class="h-5 w-5 text-gray-400 mr-3" />
-                        <a href="#"
-                            class="text-sm text-gray-300 hover:text-indigo-400">
+                        <a href="#" class="text-sm text-gray-300 hover:text-indigo-400">
                             設定
                         </a>
                     </div>
                     <div class="flex items-center mt-3">
                         <flux:icon.question-mark-circle class="h-5 w-5 text-gray-400 mr-3" />
-                        <a href="#"
-                            class="text-sm text-gray-300 hover:text-indigo-400">
+                        <a href="#" class="text-sm text-gray-300 hover:text-indigo-400">
                             ヘルプ
                         </a>
                     </div>

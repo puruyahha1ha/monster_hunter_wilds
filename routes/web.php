@@ -33,7 +33,21 @@ Route::prefix('admin')->group(function () {
             Volt::route('/create', 'admin.skills.create')->name('create');
             Volt::route('/edit/{skill}', 'admin.skills.edit')->name('edit');
             Volt::route('/show/{skill}', 'admin.skills.show')->name('show');
-            Volt::route('/delete/{skill}', 'admin.skills.delete')->name('delete');
+
+            // スキルグループ管理
+            Route::prefix('groups')->name('groups.')->group(function () {
+                Volt::route('/', 'admin.skills.groups.index')->name('index');
+                Volt::route('/create', 'admin.skills.groups.create')->name('create');
+                Volt::route('/edit/{group}', 'admin.skills.groups.edit')->name('edit');
+                Volt::route('/show/{group}', 'admin.skills.groups.show')->name('show');
+            });
+            // スキルシリーズ管理
+            Route::prefix('series')->name('series.')->group(function () {
+                Volt::route('/', 'admin.skills.series.index')->name('index');
+                Volt::route('/create', 'admin.skills.series.create')->name('create');
+                Volt::route('/edit/{series}', 'admin.skills.series.edit')->name('edit');
+                Volt::route('/show/{series}', 'admin.skills.series.show')->name('show');
+            });
         });
 
         // 武器管理
@@ -42,23 +56,22 @@ Route::prefix('admin')->group(function () {
             Volt::route('/create', 'admin.weapons.create')->name('create');
             Volt::route('/edit/{weapon}', 'admin.weapons.edit')->name('edit');
             Volt::route('/show/{weapon}', 'admin.weapons.show')->name('show');
-            Volt::route('/delete/{weapon}', 'admin.weapons.delete')->name('delete');
+        });
+
+        // 防具管理
+        Route::prefix('armors')->name('admin.armors.')->group(function () {
+            Volt::route('/', 'admin.armors.index')->name('index');
+            Volt::route('/create', 'admin.armors.create')->name('create');
+            Volt::route('/edit/{armor}', 'admin.armors.edit')->name('edit');
+            Volt::route('/show/{armor}', 'admin.armors.show')->name('show');
         });
 
         // ユーザー管理
         Route::prefix('users')->name('admin.users.')->group(function () {
-            Volt::route('/', 'admin.users.index')
-                ->name('index');
-            Volt::route('/create', 'admin.users.create')
-                ->name('create');
-            Volt::route('/edit/{user}', 'admin.users.edit')
-                ->name('edit');
-            Volt::route('/show/{user}', 'admin.users.show')
-                ->name('show');
-            Volt::route('/delete/{user}', 'admin.users.delete')
-                ->name('delete');
-            Volt::route('/confirm-delete/{user}', 'admin.users.confirm-delete')
-                ->name('confirm-delete');
+            Volt::route('/', 'admin.users.index')->name('index');
+            Volt::route('/create', 'admin.users.create')->name('create');
+            Volt::route('/edit/{user}', 'admin.users.edit')->name('edit');
+            Volt::route('/show/{user}', 'admin.users.show')->name('show');
         });
     });
 });

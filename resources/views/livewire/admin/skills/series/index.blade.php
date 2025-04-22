@@ -83,17 +83,15 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
 <div>
     {{-- 検索 --}}
-    <div class="mb-4 flex justify-between">
+    <div class="mb-4 md:flex justify-between">
         <input type="text" wire:model.live.debounce.500ms="search"
             class="px-4 py-2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="シリーズ名または説明で検索" />
-        <div class="flex space-x-8">
-            <a href="{{ route('admin.skills.groups.index') }}"
-                class="px-4 py-2 text-white rounded-md bg-blue-500 hover:bg-blue-600" wire:navigate>
+        <div class="flex space-x-8 mt-4 md:mt-0">
+            <a href="{{ route('admin.skills.groups.index') }}" class="text-blue-600 hover:text-blue-900" wire:navigate>
                 グループスキル一覧
             </a>
-            <a href="{{ route('admin.skills.index') }}"
-                class="px-4 py-2 text-white rounded-md bg-blue-500 hover:bg-blue-600" wire:navigate>
+            <a href="{{ route('admin.skills.index') }}" class="text-blue-600 hover:text-blue-900" wire:navigate>
                 スキル一覧
             </a>
         </div>

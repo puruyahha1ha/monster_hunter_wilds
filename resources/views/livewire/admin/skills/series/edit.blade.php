@@ -15,7 +15,8 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     public string $description = '';
 
     public string $search = '';
-    public array $showSkills = [];
+    public string $showSecondSkill = '';
+    public string $showForthSkill = '';
     #[Computed]
     public function skills(): object
     {
@@ -24,19 +25,30 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             ->get();
     }
 
-    public function addSkill(int $skillId): void
+    public function addSecondSkill(int $skillId): void
     {
         $skill = Skill::find($skillId);
-        if ($skill && !in_array($skill->name, $this->showSkills)) {
-            $this->showSkills[] = $skill->name;
+        if ($skill && $skill->name !== $this->showSecondSkill) {
+            $this->showSecondSkill = $skill->name;
         }
     }
 
-    public function removeSkill(string $skillName): void
+    public function removeSecondSkill(string $skillName): void
     {
-        $this->showSkills = array_filter($this->showSkills, function ($skill) use ($skillName) {
-            return $skill !== $skillName;
-        });
+        $this->showSecondSkill = '';
+    }
+
+    public function addForthSkill(int $skillId): void
+    {
+        $skill = Skill::find($skillId);
+        if ($skill && $skill->name !== $this->showForthSkill) {
+            $this->showForthSkill = $skill->name;
+        }
+    }
+
+    public function removeForthSkill(string $skillName): void
+    {
+        $this->showForthSkill = '';
     }
 
     public function mount(Series $series): void
@@ -44,7 +56,8 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         // 初期値の設定
         $this->name = $series->name;
         $this->description = $series->description;
-        $this->showSkills = $series->skills->pluck('name')->toArray();
+        $this->showSecondSkill = $series->secondSkill->first()->name ?? '';
+        $this->showForthSkill = $series->forthSkill->first()->name ?? '';
     }
 
     public function updateSeries(): void
@@ -60,9 +73,17 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 ]);
 
                 // シリーズに関連するスキルの登録
-                $this->series->skills()->detach();
-                foreach ($this->showSkills as $skill) {
-                    $this->series->skills()->attach(Skill::where('name', $skill)->first()->id);
+                $this->series->secondSkill()->detach();
+                $this->series->forthSkill()->detach();
+                if ($this->showSecondSkill) {
+                    $this->series->secondSkill()->attach(Skill::where('name', $this->showSecondSkill)->first()->id, [
+                        'required_parts' => 2,
+                    ]);
+                }
+                if ($this->showForthSkill) {
+                    $this->series->forthSkill()->attach(Skill::where('name', $this->showForthSkill)->first()->id, [
+                        'required_parts' => 4,
+                    ]);
                 }
             });
 
@@ -126,21 +147,48 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </p>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @forelse($this->showSkills as $skill)
-                        <div class="flex justify-between items-center border-gray-200 border rounded-md p-3">
-                            <div>
-                                <span class="text-white font-medium">
-                                    {{ $skill }}
-                                </span>
+                    <div>
+                        <label for="name" class="block text-gray-300 text-md font-medium mb-2">
+                            2部位
+                            <span class="text-red-500">*</span>
+                        </label>
+                        @if ($showSecondSkill)
+                            <div class="flex justify-between items-center border-gray-200 border rounded-md p-3">
+                                <div>
+                                    <span class="text-white font-medium">
+                                        {{ $showSecondSkill }}
+                                    </span>
+                                </div>
+                                <button wire:click.prevent="removeSecondSkill('{{ $showSecondSkill }}')"
+                                    class="text-red-500 hover:text-red-700">
+                                    <flux:icon.x-mark class="w-4 h-4" />
+                                </button>
                             </div>
-                            <button wire:click.prevent="removeSkill('{{ $skill }}')"
-                                class="text-red-500 hover:text-red-700">
-                                <flux:icon.x-mark class="w-4 h-4" />
-                            </button>
-                        </div>
-                    @empty
-                        <p class="border-gray-200 border rounded-md p-3 text-gray-500 text-center">スキルなし</p>
-                    @endforelse
+                        @else
+                            <p class="border-gray-200 border rounded-md p-3 text-gray-500 text-center">スキルなし</p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="name" class="block text-gray-300 text-md font-medium mb-2">
+                            4部位
+                            <span class="text-red-500">*</span>
+                        </label>
+                        @if ($showForthSkill)
+                            <div class="flex justify-between items-center border-gray-200 border rounded-md p-3">
+                                <div>
+                                    <span class="text-white font-medium">
+                                        {{ $showForthSkill }}
+                                    </span>
+                                </div>
+                                <button wire:click.prevent="removeForthSkill('{{ $showForthSkill }}')"
+                                    class="text-red-500 hover:text-red-700">
+                                    <flux:icon.x-mark class="w-4 h-4" />
+                                </button>
+                            </div>
+                        @else
+                            <p class="border-gray-200 border rounded-md p-3 text-gray-500 text-center">スキルなし</p>
+                        @endif
+                    </div>
                 </div>
                 @if ($errors->has('skills'))
                     <p class="text-red-500 text-sm mt-1">
@@ -179,9 +227,11 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                     <tbody class="divide-y divide-gray-200">
                         @forelse($this->skills as $skill)
                             <tr>
-                                <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
-                                    <button wire:click.prevent="addSkill({{ $skill->id }})"
-                                        class="text-blue-500 hover:text-blue-700">追加</button>
+                                <td class="px-6 py-4 text-gray-200 whitespace-nowrap flex gap-4">
+                                    <button wire:click.prevent="addSecondSkill({{ $skill->id }})"
+                                        class="text-blue-500 hover:text-blue-700">2部位に追加</button>
+                                    <button wire:click.prevent="addForthSkill({{ $skill->id }})"
+                                        class="text-blue-500 hover:text-blue-700">4部位に追加</button>
                                 </td>
                                 <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
                                     {{ $skill->name }}

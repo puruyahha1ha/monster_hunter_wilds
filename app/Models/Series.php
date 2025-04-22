@@ -49,6 +49,21 @@ class Series extends Model
      */
     public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'series_skill', 'series_id', 'skill_id');
+        return $this->belongsToMany(Skill::class, 'series_skill', 'series_id', 'skill_id')
+            ->withPivot('required_parts');
+    }
+
+    public function secondSkill(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'series_skill', 'series_id', 'skill_id')
+            ->where('series_skill.required_parts', 2)
+            ->withPivot('required_parts');
+    }
+
+    public function forthSkill(): BelongsToMany
+    {
+        return $this->belongsToMany(Skill::class, 'series_skill', 'series_id', 'skill_id')
+            ->where('series_skill.required_parts', 4)
+            ->withPivot('required_parts');
     }
 }

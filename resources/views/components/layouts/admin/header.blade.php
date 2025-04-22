@@ -24,11 +24,38 @@
                     wire:current="bg-indigo-900 text-indigo-300">
                     防具管理
                 </a>
-                <a href="{{ route('admin.skills.index') }}" wire:navigate
-                    class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-                    wire:current="bg-indigo-900 text-indigo-300">
-                    スキル管理
-                </a>
+                <div x-data="{ open: false }" class="relative" @mouseenter="open = true" @mouseleave="open = false">
+                    <button type="button"
+                        class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                        id="skills-menu-button" aria-expanded="false" aria-haspopup="true">
+                        スキル管理
+                        <flux:icon.chevron-down class="ml-1 h-4 w-4" />
+                    </button>
+
+                    <!-- ドロップダウンメニュー -->
+                    <div x-show="open"
+                        class="absolute z-10 mt-1 w-40 origin-top-right rounded-md bg-gray-700 py-1 shadow-lg ring-1 ring-gray-600 ring-opacity-5 focus:outline-none"
+                        role="menu" aria-orientation="vertical" aria-labelledby="skills-menu-button" tabindex="-1"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95">
+                        <a href="{{ route('admin.skills.index') }}" wire:navigate
+                            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" role="menuitem">
+                            スキル一覧
+                        </a>
+                        <a href="{{ route('admin.skills.groups.index') }}" wire:navigate
+                            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" role="menuitem">
+                            グループスキル一覧
+                        </a>
+                        <a href="{{ route('admin.skills.series.index') }}" wire:navigate
+                            class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600" role="menuitem">
+                            シリーズスキル一覧
+                        </a>
+                    </div>
+                </div>
                 <a href="{{ route('admin.users.index') }}" wire:navigate
                     class="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
                     wire:current="bg-indigo-900 text-indigo-300">
@@ -88,15 +115,16 @@
         <div class="fixed inset-0 bg-gray-600 bg-opacity-75 transition-opacity" x-show="mobileMenuOpen"
             x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="mobileMenuOpen = false">
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            @click="mobileMenuOpen = false">
         </div>
 
         {{-- サイドナビゲーション --}}
         <div class="fixed inset-y-0 right-0 w-full max-w-xs bg-gray-800 overflow-y-auto" x-show="mobileMenuOpen"
             x-transition:enter="transition ease-in-out duration-300 transform"
             x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-            x-transition:leave="transition ease-in-out duration-300 transform" x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="translate-x-full">
+            x-transition:leave="transition ease-in-out duration-300 transform"
+            x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
 
             <div class="p-4 flex items-center justify-between border-b border-gray-700">
                 <h2 class="text-lg font-medium text-white">メニュー</h2>
@@ -147,12 +175,33 @@
                         <flux:icon.shield class="h-5 w-5 mr-3 text-gray-400" />
                         防具管理
                     </a>
-                    <a href="{{ route('admin.skills.index') }}" wire:navigate
-                        wire:current="bg-indigo-900/30 text-indigo-300"
-                        class="flex items-center px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">
-                        <flux:icon.biceps-flexed class="h-5 w-5 mr-3 text-gray-400" />
-                        スキル管理
-                    </a>
+                    <div x-data="{ open: false }">
+                        <button @click="open = !open"
+                            class="w-full flex items-center justify-between px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">
+                            <div class="flex items-center">
+                                <flux:icon.biceps-flexed class="h-5 w-5 mr-3 text-gray-400" />
+                                スキル管理
+                            </div>
+                            <flux:icon.chevron-down class="h-4 w-4 text-gray-400" />
+                        </button>
+                        <div x-show="open" x-collapse>
+                            <a href="{{ route('admin.skills.index') }}" wire:navigate
+                                wire:current.exact="bg-indigo-900/30 text-indigo-300"
+                                class="flex items-center pl-12 pr-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700/30">
+                                スキル一覧
+                            </a>
+                            <a href="{{ route('admin.skills.groups.index') }}" wire:navigate
+                                wire:current="bg-indigo-900/30 text-indigo-300"
+                                class="flex items-center pl-12 pr-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700/30">
+                                グループスキル一覧
+                            </a>
+                            <a href="{{ route('admin.skills.series.index') }}" wire:navigate
+                                wire:current="bg-indigo-900/30 text-indigo-300"
+                                class="flex items-center pl-12 pr-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700/30">
+                                シリーズスキル一覧
+                            </a>
+                        </div>
+                    </div>
                     <a href="{{ route('admin.users.index') }}" wire:navigate
                         wire:current="bg-indigo-900/30 text-indigo-300"
                         class="flex items-center px-4 py-3 text-base font-medium text-gray-300 hover:bg-gray-700/30">

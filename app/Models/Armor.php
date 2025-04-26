@@ -3,7 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Enums\ArmorTypes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Armor extends Model
 {
@@ -63,9 +67,9 @@ class Armor extends Model
     /**
      * Get the armor slots for the armor.
      */
-    public function slots()
+    public function slots(): HasMany
     {
-        return $this->hasMany(ArmorSlot::class);
+        return $this->hasMany(ArmorSlot::class, 'armor_id');
     }
 
     /**
@@ -104,7 +108,7 @@ class Armor extends Model
      */
     public function skillLevels()
     {
-        return $this->belongsToMany(SkillLevel::class, 'armor_skill_levels', 'armor_id', 'skill_level_id')
+        return $this->belongsToMany(SkillLevel::class, 'armor_skill_level', 'armor_id', 'skill_level_id')
             ->withTimestamps();
     }
 }

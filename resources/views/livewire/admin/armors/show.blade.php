@@ -1,67 +1,67 @@
 <?php
 
-use App\Models\Weapon;
+use App\Models\Armor;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
-    public Weapon $weapon;
+    public Armor $armor;
     public bool $showDeleteModal = false;
-    public ?int $deleteWeaponId = null;
+    public ?int $deleteArmorId = null;
 
-    public function confirmDelete(int $weaponId): void
+    public function confirmDelete(int $armorId): void
     {
-        $this->deleteWeaponId = $weaponId;
+        $this->deleteArmorId = $armorId;
         $this->showDeleteModal = true;
     }
 
     public function cancelDelete(): void
     {
-        $this->deleteWeaponId = null;
+        $this->deleteArmorId = null;
         $this->showDeleteModal = false;
     }
 
-    public function deleteWeapon(): void
+    public function deleteArmor(): void
     {
-        if ($this->deleteWeaponId) {
+        if ($this->deleteArmorId) {
             try {
-                $weapon = Weapon::findOrFail($this->deleteWeaponId);
-                $weaponName = $weapon->name;
-                $weapon->delete();
+                $armor = Armor::findOrFail($this->deleteArmorId);
+                $armorName = $armor->name;
+                $armor->delete();
 
-                $this->redirect(route('admin.weapons.index'));
-                session()->flash('message', "{$weaponName}を削除しました。");
+                $this->redirect(route('admin.armors.index'));
+                session()->flash('message', "{$armorName}を削除しました。");
             } catch (\Exception $e) {
                 session()->flash('error', "削除中にエラーが発生しました: {$e->getMessage()}");
             }
         }
 
         $this->showDeleteModal = false;
-        $this->deleteWeaponId = null;
+        $this->deleteArmorId = null;
     }
 }; ?>
 
 <div>
     <div class="rounded-lg border-gray-700 border p-8 bg-gray-850 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">武器詳細</h2>
+        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">防具詳細</h2>
 
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <p class="block text-gray-300 text-lg font-medium mb-2">
-                        武器名
+                        防具名
                     </p>
                     <p class="w-full text-white">
-                        {{ $weapon->name }}
+                        {{ $armor->name }}
                     </p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2" for="description">
-                            武器種
+                            防具種
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->type->label() }}
+                            {{ $armor->type->label() }}
                         </p>
                     </div>
                     <div>
@@ -69,7 +69,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             レアリティ
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->rarity }}
+                            {{ $armor->rarity }}
                         </p>
                     </div>
                 </div>
@@ -77,7 +77,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="grid grid-cols-3 gap-6">
-                    @foreach ($weapon->slots as $slot)
+                    @foreach ($armor->slots as $slot)
                         <div>
                             <p class="block text-gray-300 text-lg font-medium mb-2" for="description">
                                 スロット
@@ -92,56 +92,80 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 <div class="grid grid-cols-3 gap-6">
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2">
-                            攻撃力
+                            防御力
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->attack }}
+                            {{ $armor->defense }}
                         </p>
                     </div>
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2">
-                            クリティカル率
+                            グループ
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->critical_rate }}
+                            {{ $armor->group->name }}
                         </p>
                     </div>
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2">
-                            防御力ボーナス
+                            シリーズ
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->defense }}
+                            {{ $armor->series->name }}
                         </p>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-5 gap-6">
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2">
-                            属性
+                            火耐性
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->element->label() }}
+                            {{ $armor->fire_resistance }}
                         </p>
                     </div>
                     <div>
                         <p class="block text-gray-300 text-lg font-medium mb-2">
-                            属性値
+                            水耐性
                         </p>
                         <p class="w-full text-white">
-                            {{ $weapon->element_attack }}
+                            {{ $armor->water_resistance }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="block text-gray-300 text-lg font-medium mb-2">
+                            雷耐性
+                        </p>
+                        <p class="w-full text-white">
+                            {{ $armor->thunder_resistance }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="block text-gray-300 text-lg font-medium mb-2">
+                            氷耐性
+                        </p>
+                        <p class="w-full text-white">
+                            {{ $armor->ice_resistance }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="block text-gray-300 text-lg font-medium mb-2">
+                            龍耐性
+                        </p>
+                        <p class="w-full text-white">
+                            {{ $armor->dragon_resistance }}
                         </p>
                     </div>
                 </div>
                 <div>
                     <p class="block text-gray-300 text-lg font-medium mb-2">
-                        武器スキル
+                        防具スキル
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        @forelse($weapon->skillLevels as $skillLevel)
+                        @forelse($armor->skillLevels as $skillLevel)
                             <div>
                                 <span class="text-white font-medium">
                                     {{ $skillLevel->skill->name }}Lv.{{ $skillLevel->level }}
@@ -155,17 +179,17 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             </div>
 
             <div class="grid grid-cols-3 gap-6">
-                <a href="{{ route('admin.weapons.index') }}"
+                <a href="{{ route('admin.armors.index') }}"
                     class="px-4 py-2 bg-gray-500 text-white text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    武器一覧へ
+                    防具一覧へ
                 </a>
-                <a href="{{ route('admin.weapons.edit', $weapon->id) }}"
+                <a href="{{ route('admin.armors.edit', $armor->id) }}"
                     class="px-4 py-2 bg-blue-500 text-white text-center rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    武器編集
+                    防具編集
                 </a>
-                <button wire:click="confirmDelete({{ $weapon->id }})"
+                <button wire:click="confirmDelete({{ $armor->id }})"
                     class="px-4 py-2 bg-red-500 text-white rounded-md shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                    武器削除
+                    防具削除
                 </button>
             </div>
         </div>
@@ -175,7 +199,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
                 <h3 class="text-xl font-bold text-white mb-4">削除の確認</h3>
                 <p class="text-gray-300 mb-6">
-                    この武器を削除してもよろしいですか？<br>
+                    この防具を削除してもよろしいですか？<br>
                     この操作は取り消せません。
                 </p>
                 <div class="flex justify-end space-x-3">
@@ -183,7 +207,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
                         キャンセル
                     </button>
-                    <button wire:click="deleteWeapon" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                    <button wire:click="deleteArmor" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                         削除する
                     </button>
                 </div>

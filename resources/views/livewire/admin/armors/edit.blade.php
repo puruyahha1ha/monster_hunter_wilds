@@ -1,9 +1,10 @@
 <?php
 
-use App\Enums\ElementTypes;
-use App\Enums\WeaponTypes;
-use App\Models\Weapon;
+use App\Enums\ArmorTypes;
+use App\Models\Armor;
 use App\Models\SkillLevel;
+use App\Models\Group;
+use App\Models\Series;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -11,23 +12,31 @@ use Livewire\Volt\Component;
 use Illuminate\Support\Facades\DB;
 
 new #[Layout('components.layouts.admin-app')] class extends Component {
-    public Weapon $weapon;
-    #[Validate('required|string', as: '武器名')]
+    public Armor $armor;
+    #[Validate('required|integer', as: 'グループ')]
+    public ?int $group_id = null;
+    public array $groups = [];
+    #[Validate('required|integer', as: 'シリーズ')]
+    public ?int $series_id = null;
+    public array $series = [];
+    #[Validate('required|string', as: '防具名')]
     public string $name = '';
-    #[Validate('required|string|in:great_sword,long_sword,sword_and_shield,dual_blades,hammer,hunting_horn,lance,gunlance,switch_axe,charge_blade,insect_glaive,light_bowgun,heavy_bowgun,bow', as: '武器種')]
-    public string $type = WeaponTypes::GREAT_SWORD->value;
+    #[Validate('required|string', as: '部位')]
+    public string $type = ArmorTypes::HEAD->value;
     #[Validate('required|integer|min:1|max:8', as: 'レアリティ')]
     public int $rarity = 1;
-    #[Validate('required|integer', as: '攻撃力')]
-    public int $attack = 100;
-    #[Validate('required|integer', as: 'クリティカル率')]
-    public int $critical_rate = 0;
-    #[Validate('required|string|in:none,fire,water,thunder,ice,dragon,poison,paralyze,sleep,explosion', as: '属性')]
-    public string $element = ElementTypes::NONE->value;
-    #[Validate('required|integer', as: '属性値')]
-    public int $element_attack = 0;
-    #[Validate('required|integer', as: '防御力ボーナス')]
+    #[Validate('required|integer', as: '防御力')]
     public int $defense = 0;
+    #[Validate('required|integer', as: '火耐性')]
+    public int $fireResistance = 0;
+    #[Validate('required|integer', as: '水耐性')]
+    public int $waterResistance = 0;
+    #[Validate('required|integer', as: '雷耐性')]
+    public int $thunderResistance = 0;
+    #[Validate('required|integer', as: '氷耐性')]
+    public int $iceResistance = 0;
+    #[Validate('required|integer', as: '龍耐性')]
+    public int $dragonResistance = 0;
 
     #[
         Validate(
@@ -58,26 +67,31 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
         ],
     ];
 
-    public function mount(Weapon $weapon): void
+    public function mount(): void
     {
-        // 初期値の設定
-        $this->weapon = $weapon;
-        $this->name = $weapon->name;
-        $this->type = $weapon->type->value;
-        $this->rarity = $weapon->rarity;
-        $this->attack = $weapon->attack;
-        $this->critical_rate = $weapon->critical_rate;
-        $this->element = $weapon->element->value;
-        $this->element_attack = $weapon->element_attack;
-        $this->defense = $weapon->defense;
-
-        foreach ($weapon->slots as $slot) {
-            if (isset($this->slots[$slot['position']])) {
-                $this->slots[$slot['position']]['size'] = $slot['size'];
-            }
+        // グループの取得
+        $this->groups = Group::all()->pluck('name', 'id')->toArray();
+        // シリーズの取得
+        $this->series = Series::all()->pluck('name', 'id')->toArray();
+        // 防具の初期値の設定
+        $this->name = $this->armor->name;
+        $this->type = $this->armor->type->value;
+        $this->rarity = $this->armor->rarity;
+        $this->defense = $this->armor->defense;
+        $this->fireResistance = $this->armor->fire_resistance;
+        $this->waterResistance = $this->armor->water_resistance;
+        $this->thunderResistance = $this->armor->thunder_resistance;
+        $this->iceResistance = $this->armor->ice_resistance;
+        $this->dragonResistance = $this->armor->dragon_resistance;
+        $this->group_id = $this->armor->group_id;
+        $this->series_id = $this->armor->series_id;
+        // スロットの初期値の設定
+        foreach ($this->armor->slots as $slot) {
+            $this->slots[$slot->position]['size'] = $slot->size;
+            $this->slots[$slot->position]['position'] = $slot->position;
         }
-
-        foreach ($weapon->skillLevels as $skillLevel) {
+        // スキルレベルの初期値の設定
+        foreach ($this->armor->skillLevels as $skillLevel) {
             $this->showLevels[] = [
                 'id' => $skillLevel->id,
                 'name' => $skillLevel->skill->name,
@@ -88,7 +102,6 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     }
 
     public string $search = '';
-
     #[Computed]
     public function skillLevels(): object
     {
@@ -145,64 +158,54 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
             // 配列のキーを振り直し
             $this->showLevels = array_values($this->showLevels);
         }
-
-        // スキルレベルのIDを削除
-        if (isset($this->relatedLevels[$index])) {
-            unset($this->relatedLevels[$index]);
-            // 配列のキーを振り直し
-            $this->relatedLevels = array_values($this->relatedLevels);
-        }
     }
 
-    public function updateWeapon(): void
+    public function updateArmor(): void
     {
         $this->validate();
 
         try {
             DB::transaction(function () {
-                // 武器の編集
-                $this->weapon->update([
+                // 防具の更新
+                $armor = Armor::find($this->armor->id);
+                $armor->update([
                     'name' => $this->name,
+                    'group_id' => $this->group_id,
+                    'series_id' => $this->series_id,
                     'type' => $this->type,
                     'rarity' => $this->rarity,
-                    'attack' => $this->attack,
-                    'critical_rate' => $this->critical_rate,
-                    'element' => $this->element,
-                    'element_attack' => $this->element_attack,
                     'defense' => $this->defense,
+                    'fire_resistance' => $this->fireResistance,
+                    'water_resistance' => $this->waterResistance,
+                    'thunder_resistance' => $this->thunderResistance,
+                    'ice_resistance' => $this->iceResistance,
+                    'dragon_resistance' => $this->dragonResistance,
                 ]);
 
-                // 武器スロットの更新
-                $this->weapon->slots()->delete();
-                // スロットの登録
+                // 防具スロットの更新
                 foreach ($this->slots as $slot) {
-                    $this->weapon->slots()->create([
-                        'size' => $slot['size'],
-                        'position' => $slot['position'],
-                    ]);
+                    $armor->slots()->updateOrCreate(['position' => $slot['position']], ['size' => $slot['size']]);
                 }
 
-                // 武器スキルの更新
-                $this->weapon->skillLevels()->detach();
-                // スキルレベルの登録
+                // 防具スキルの更新
                 if (!empty($this->relatedLevels)) {
-                    $this->weapon->skillLevels()->sync($this->relatedLevels);
+                    $armor->skillLevels()->sync($this->relatedLevels);
                 }
             });
 
             // 成功時の処理
-            session()->flash('message', '武器が正常に更新されました。');
+            session()->flash('message', '防具が正常に更新されました。');
         } catch (\Exception $e) {
             // エラー時の処理
-            session()->flash('error', '武器の更新に失敗しました。' . $e->getMessage());
+            session()->flash('error', '防具の更新に失敗しました。' . $e->getMessage());
         }
     }
 
     public function attributes(): array
     {
         return [
-            'name' => '武器名',
-            'type' => '武器種',
+            'name' => '防具名',
+            'type' => '防具種',
             'rarity' => 'レアリティ',
             'attack' => '攻撃力',
             'critical_rate' => 'クリティカル率',
@@ -229,18 +232,18 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
     @endif
 
     <div class="rounded-lg border-gray-700 border p-8 bg-gray-850 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">武器更新</h2>
+        <h2 class="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-2">防具更新</h2>
 
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="name" class="block text-gray-300 text-lg font-medium mb-2">
-                        武器名
+                        防具名
                         <span class="text-red-500">*</span>
                     </label>
                     <input type="text" id="name" wire:model="name"
                         class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3"
-                        placeholder="武器名を入力してください" />
+                        placeholder="防具名を入力してください" />
                     @if ($errors->has('name'))
                         <p class="text-red-500 text-sm mt-1">
                             {{ $errors->first('name') }}
@@ -250,13 +253,13 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="type" class="block text-gray-300 text-lg font-medium mb-2">
-                            武器種
+                            防具種
                             <span class="text-red-500">*</span>
                         </label>
                         <select id="type" wire:model="type"
                             class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
-                            @foreach (WeaponTypes::cases() as $weaponType)
-                                <option value="{{ $weaponType->value }}">{{ $weaponType->label() }}</option>
+                            @foreach (ArmorTypes::cases() as $armorType)
+                                <option value="{{ $armorType->value }}">{{ $armorType->label() }}</option>
                             @endforeach
                         </select><br>
                         @if ($errors->has('type'))
@@ -309,35 +312,8 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </div>
                 <div class="grid grid-cols-3 gap-6">
                     <div>
-                        <label for="attack" class="block text-gray-300 text-lg font-medium mb-2">
-                            攻撃力
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="attack" wire:model="attack" min="1"
-                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
-                        @if ($errors->has('attack'))
-                            <p class="text-red-500 text-sm mt-1">
-                                {{ $errors->first('attack') }}
-                            </p>
-                        @endif
-                    </div>
-                    <div>
-                        <label for="critical_rate" class="block text-gray-300 text-lg font-medium mb-2">
-                            クリティカル率
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="critical_rate" wire:model="critical_rate" min="-100"
-                            max="100"
-                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
-                        @if ($errors->has('critical_rate'))
-                            <p class="text-red-500 text-sm mt-1">
-                                {{ $errors->first('critical_rate') }}
-                            </p>
-                        @endif
-                    </div>
-                    <div>
                         <label for="defense" class="block text-gray-300 text-lg font-medium mb-2">
-                            防御力ボーナス
+                            防御力
                             <span class="text-red-500">*</span>
                         </label>
                         <input type="number" id="defense" wire:model="defense" min="0" max="100"
@@ -348,45 +324,121 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                             </p>
                         @endif
                     </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
-                            属性
+                        <label for="group_id" class="block text-gray-300 text-lg font-medium mb-2">
+                            グループ
                             <span class="text-red-500">*</span>
                         </label>
-                        <select id="element" wire:model="element"
-                            class="w-40 md:w-50 bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
-                            @foreach (ElementTypes::cases() as $elementType)
-                                <option value="{{ $elementType->value }}">{{ $elementType->label() }}</option>
+                        <select id="group_id" wire:model="group_id"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
+                            <option value="">選択してください</option>
+                            @foreach ($this->groups as $id => $groupName)
+                                <option value="{{ $id }}">{{ $groupName }}</option>
                             @endforeach
-                        </select><br>
-                        @if ($errors->has('element'))
+                        </select>
+                        @if ($errors->has('group_id'))
                             <p class="text-red-500 text-sm mt-1">
-                                {{ $errors->first('element') }}
+                                {{ $errors->first('group_id') }}
                             </p>
                         @endif
                     </div>
                     <div>
-                        <label for="element_attack" class="block text-gray-300 text-lg font-medium mb-2">
-                            属性値
+                        <label for="series_id" class="block text-gray-300 text-lg font-medium mb-2">
+                            シリーズ
                             <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" id="element_attack" wire:model="element_attack" min="1"
-                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
-                        @if ($errors->has('element_attack'))
+                        <select id="series_id" wire:model="series_id"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
+                            <option value="">選択してください</option>
+                            @foreach ($this->series as $id => $seriesName)
+                                <option value="{{ $id }}">{{ $seriesName }}</option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('series_id'))
                             <p class="text-red-500 text-sm mt-1">
-                                {{ $errors->first('element_attack') }}
+                                {{ $errors->first('series_id') }}
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+                    <div>
+                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
+                            火耐性
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="fireResistance" wire:model="fireResistance" min="-20"
+                            max="20"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                        @if ($errors->has('fireResistance'))
+                            <p class="text-red-500 text-sm mt-1">
+                                {{ $errors->first('fireResistance') }}
+                            </p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
+                            水耐性
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="waterResistance" wire:model="waterResistance" min="-20"
+                            max="20"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                        @if ($errors->has('waterResistance'))
+                            <p class="text-red-500 text-sm mt-1">
+                                {{ $errors->first('waterResistance') }}
+                            </p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
+                            雷耐性
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="thunderResistance" wire:model="thunderResistance" min="-20"
+                            max="20"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                        @if ($errors->has('thunderResistance'))
+                            <p class="text-red-500 text-sm mt-1">
+                                {{ $errors->first('thunderResistance') }}
+                            </p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
+                            氷耐性
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="iceResistance" wire:model="iceResistance" min="-20"
+                            max="20"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                        @if ($errors->has('iceResistance'))
+                            <p class="text-red-500 text-sm mt-1">
+                                {{ $errors->first('iceResistance') }}
+                            </p>
+                        @endif
+                    </div>
+                    <div>
+                        <label for="element" class="block text-gray-300 text-lg font-medium mb-2">
+                            龍耐性
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="dragonResistance" wire:model="dragonResistance" min="-20"
+                            max="20"
+                            class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3" />
+                        @if ($errors->has('dragonResistance'))
+                            <p class="text-red-500 text-sm mt-1">
+                                {{ $errors->first('dragonResistance') }}
                             </p>
                         @endif
                     </div>
                 </div>
                 <div>
                     <p class="block text-gray-300 text-lg font-medium mb-2">
-                        武器スキル
+                        防具スキル
                     </p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -414,13 +466,13 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold text-white my-6 border-b border-gray-700 py-2">武器スキル</h2>
+            <h2 class="text-2xl font-bold text-white my-6 border-b border-gray-700 py-2">防具スキル</h2>
             <div class="space-y-4">
                 <div class="flex items-center justify-between mb-6">
                     {{-- スキル検索 --}}
                     <input type="text" id="search" wire:model.live.debounce.500ms="search"
                         class="px-4 py-2 w-full md:w-1/2 text-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="武器スキル名または説明で検索" />
+                        placeholder="防具スキル名または説明で検索" />
                 </div>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -478,13 +530,13 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </div>
 
                 <div class="grid grid-cols-2 gap-6">
-                    <a href="{{ route('admin.weapons.index') }}"
+                    <a href="{{ route('admin.armors.index') }}"
                         class="px-4 py-2 bg-gray-500 text-white text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        武器一覧へ
+                        防具一覧へ
                     </a>
-                    <button wire:click.prevent="updateWeapon"
+                    <button wire:click.prevent="updateArmor"
                         class="px-4 py-2 bg-blue-500 text-white text-center rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        武器更新
+                        防具更新
                     </button>
                 </div>
             </div>

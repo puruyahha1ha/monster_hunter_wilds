@@ -237,7 +237,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                         <select id="type" wire:model="type"
                             class="w-full bg-gray-900 border-gray-200 border text-white rounded-md focus:ring-2 focus:ring-gray-500 p-3">
                             @foreach (ArmorTypes::cases() as $armorType)
-                                <option value="{{ $armorType->value }}">{{ $armorType->value }}</option>
+                                <option value="{{ $armorType->value }}">{{ $armorType->label() }}</option>
                             @endforeach
                         </select><br>
                         @if ($errors->has('type'))
@@ -508,7 +508,7 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                 </div>
 
                 <div class="grid grid-cols-2 gap-6">
-                    <a href="{{ route('admin.aromors.index') }}"
+                    <a href="{{ route('admin.armors.index') }}"
                         class="px-4 py-2 bg-gray-500 text-white text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                         防具一覧へ
                     </a>

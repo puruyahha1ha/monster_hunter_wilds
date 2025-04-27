@@ -153,12 +153,12 @@ new #[Layout('components.layouts.admin-app')] class extends Component {
                                     {{ $slot->size }}
                                 @endforeach
                             </td>
-                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->attack }}</td>
-                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->critical_rate }}</td>
                             <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->defense }}</td>
-                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">
-                            </td>
-
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->fire_resistance }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->water_resistance }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->thunder_resistance }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->ice_resistance }}</td>
+                            <td class="px-6 py-4 text-gray-200 whitespace-nowrap">{{ $armor->dragon_resistance }}</td>
                         </tr>
                     @empty
                         <tr>
